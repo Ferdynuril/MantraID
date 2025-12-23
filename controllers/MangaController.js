@@ -270,6 +270,7 @@ exports.chapter = async (req, res) => {
 
   let prevUrl = null;
   let nextUrl = null;
+  addPopulerView(mangaSlug);
 
   try {
     /* ================= LOAD METADATA ================= */
