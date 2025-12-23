@@ -1,0 +1,81 @@
+{
+  
+  "name": "nodejs",
+  
+  "version": "1.0.0",
+  
+  "description": "",
+  
+  "main": "index.js",
+  
+  "scripts": {
+  
+    
+  "start": "node index.js",
+  
+    
+  "dev": "nodemon index.js",
+  
+    
+  "tailwind:watch": "tailwindcss -i ./public/css/tailwind.css -o ./public/css/output.css --watch",
+  
+    
+  "tailwind:build": "tailwindcss -i ./public/css/tailwind.css -o ./public/css/output.css --minify",
+  
+    
+  "dev:all": "concurrently \"npm run tailwind:watch\" \"nodemon index.js\""
+  
+  },
+  
+  "keywords": [],
+  
+  "author": "",
+  
+  "license": "ISC",
+  
+  "type": "commonjs",
+  
+  "dependencies": {
+  
+    
+  "axios": "^1.13.2",
+  
+    
+  "bcrypt": "^6.0.0",
+  
+    
+  "ejs": "^3.1.10",
+  
+    
+  "express": "^5.2.1",
+  
+    
+  "express-ejs-layouts": "^2.5.1",
+  
+    
+  "express-session": "^1.18.2",
+  
+    
+  "node-fetch": "^2.7.0"
+  
+  },
+  
+  "devDependencies": {
+  
+    
+  "autoprefixer": "^10.4.22",
+  
+    
+  "concurrently": "^9.2.1",
+  
+    
+  "nodemon": "^3.1.11",
+  
+    
+  "postcss": "^8.5.6",
+  
+    
+  "tailwindcss": "^3.4.18"
+  
+  }
+}

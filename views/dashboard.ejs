@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Admin Dashboard</title>
+
+    <!-- Tailwind via CDN for quick prototyping -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen">
+
+    <div class="flex">
+
+        <!-- Sidebar -->
+        <aside id="sidebar" class="w-64 bg-white border-r border-slate-200 min-h-screen p-4 hidden md:block">
+            <div class="mb-8">
+                <h1 class="text-xl font-semibold">Admin</h1>
+                <p class="text-sm text-slate-500">Dashboard panel</p>
+            </div>
+
+            <nav class="space-y-1">
+                <a href="/admin" class="flex items-center gap-3 px-3 py-2 rounded hover:bg-slate-50 <% if (typeof active !== 'undefined' && active==='home') { %> bg-slate-100 font-medium <% } %>">
+                    <!-- home icon -->
+                    <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9.5l9-7 9 7V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1V9.5z"/></svg>
+                    <span>Home</span>
+                </a>
+
+                <a href="/admin/mangalist" class="flex items-center gap-3 px-3 py-2 rounded hover:bg-slate-50 <% if (typeof active !== 'undefined' && active==='mangalist') { %> bg-slate-100 font-medium <% } %>">
+                    <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 20l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 12l9-5-9-5-9 5 9 5z"/></svg>
+                    <span>MangaList</span>
+                </a>
+
+                <a href="/anything" class="flex items-center gap-3 px-3 py-2 rounded hover:bg-slate-50 <% if (typeof active !== 'undefined' && active==='anything') { %> bg-slate-100 font-medium <% } %>">
+                    <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m4 4v-2a2 2 0 00-2-2h-1m-6 6v-5a2 2 0 012-2h3"/></svg>
+                    <span>Anything</span>
+                </a>
+            </nav>
+
+            <div class="mt-8 text-xs text-slate-400">
+                <div>Quick links</div>
+                <ul class="mt-2 space-y-1">
+                    <li><a href="/settings" class="hover:underline">Settings</a></li>
+                    <li><a href="/profile" class="hover:underline">Profile</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Main -->
+        <div class="flex-1 min-h-screen">
+            <!-- Topbar -->
+            <header class="bg-white border-b border-slate-200 p-4 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <button id="mobileMenuBtn" class="md:hidden p-2 rounded bg-slate-100">
+                        <svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                    </button>
+                    <h2 class="text-lg font-semibold">Dashboard</h2>
+                    <p class="text-sm text-slate-500">Overview & analytics</p>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <div class="text-sm text-slate-500 hidden sm:block">Welcome, <span class="font-medium"><%= (typeof userName !== 'undefined') ? userName : 'Admin' %></span></div>
+                    <button class="p-2 rounded bg-slate-100">
+                        <svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5"/></svg>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <main class="p-6">
+                <!-- Stat cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-white p-4 rounded-lg shadow-sm border">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="text-xs text-slate-500">Total Views</div>
+                                <div class="text-2xl font-bold mt-1"><%= totalViews.day %></div>
+                            </div>
+                            <div class="p-2 bg-indigo-50 text-indigo-600 rounded-full">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            </div>
+                        </div>
+                        <div class="mt-3 text-xs text-slate-400">Today</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-sm border">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="text-xs text-slate-500">Total Views</div>
+                                <div class="text-2xl font-bold mt-1"><%= totalViews.week %></div>
+                            </div>
+                            <div class="p-2 bg-indigo-50 text-indigo-600 rounded-full">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            </div>
+                        </div>
+                        <div class="mt-3 text-xs text-slate-400">This Week</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-sm border">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="text-xs text-slate-500">Total Views</div>
+                                <div class="text-2xl font-bold mt-1"><%= totalViews.month %></div>
+                            </div>
+                            <div class="p-2 bg-indigo-50 text-indigo-600 rounded-full">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            </div>
+                        </div>
+                        <div class="mt-3 text-xs text-slate-400">Since last month</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-sm border">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="text-xs text-slate-500">Total Views</div>
+                                <div class="text-2xl font-bold mt-1"><%= totalViews.all %></div>
+                            </div>
+                            <div class="p-2 bg-indigo-50 text-indigo-600 rounded-full">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            </div>
+                        </div>
+                        <div class="mt-3 text-xs text-slate-400">All time</div>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-lg shadow-sm border">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="text-xs text-slate-500">Total Manga</div>
+                                <div class="text-2xl font-bold mt-1"><%= (typeof totalManga !== 'undefined') ? totalManga : 0 %></div>
+                            </div>
+                            <div class="p-2 bg-amber-50 text-amber-600 rounded-full">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-3.86 0-7 2.69-7 6v2h14v-2c0-3.31-3.14-6-7-6z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8V6"/></svg>
+                            </div>
+                        </div>
+                        <div class="mt-3 text-xs text-slate-400">All time</div>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-lg shadow-sm border">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="text-xs text-slate-500">New Today</div>
+                                <div class="text-2xl font-bold mt-1"><%= (typeof newToday !== 'undefined') ? newToday : 0 %></div>
+                            </div>
+                            <div class="p-2 bg-emerald-50 text-emerald-600 rounded-full">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            </div>
+                        </div>
+                        <div class="mt-3 text-xs text-slate-400">Today</div>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-lg shadow-sm border">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="text-xs text-slate-500">Server Status</div>
+                                <div class="text-2xl font-bold mt-1">
+                                    <% if (typeof serverOk === 'undefined' || serverOk) { %>
+                                        <span class="text-emerald-600">Online</span>
+                                    <% } else { %>
+                                        <span class="text-rose-600">Offline</span>
+                                    <% } %>
+                                </div>
+                            </div>
+                            <div class="p-2 bg-slate-50 text-slate-700 rounded-full">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M7 7v10a1 1 0 001 1h8a1 1 0 001-1V7"/></svg>
+                            </div>
+                        </div>
+                        <div class="mt-3 text-xs text-slate-400">Uptime</div>
+                    </div>
+                </div>
+
+                <!-- Charts & lists -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    <!-- Views trend -->
+                    <section class="lg:col-span-2 bg-white p-4 rounded-lg shadow-sm border">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="font-semibold">Views Trend</h3>
+                            <div class="text-xs text-slate-500">Last 7 days</div>
+                        </div>
+
+                        <div class="w-full h-36">
+                            <!-- simple sparkline generated by inline script -->
+                            <svg id="sparkline" class="w-full h-full"></svg>
+                            <div class="mt-3 text-xs text-slate-400">Data is provided from server variable "viewsTrend" (array of numbers)</div>
+                        </div>
+                    </section>
+
+                    <!-- Recent items -->
+                    <aside class="bg-white p-4 rounded-lg shadow-sm border">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="font-semibold">Recent Activity</h3>
+                            <a href="/activity" class="text-xs text-indigo-600">View all</a>
+                        </div>
+                        <ul class="space-y-3 text-sm text-slate-600">
+          
+                                    <li class="flex items-start gap-3">
+                                        <div class="w-2.5 h-2.5 mt-2 rounded-full bg-indigo-500/80"></div>
+                                        <div>
+                                            <div class="font-medium text-slate-800">Tes</div>
+                                            <div class="text-xs text-slate-400">Tes</div>
+                                        </div>
+                                    </li>
+    
+                                <li class="text-slate-400">No recent activity</li>
+
+                        </ul>
+                    </aside>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Mobile sidebar toggle
+        document.getElementById('mobileMenuBtn').addEventListener('click', function () {
+            const s = document.getElementById('sidebar');
+            s.classList.toggle('hidden');
+        });
+
+    
+    </script>
+    <script>
+(function renderSparkline(){
+    // ambil dari server (EJS inject)
+    const values = <%= JSON.stringify(viewsTrend || []) %>;
+
+    const svg = document.getElementById('sparkline');
+    if (!svg || !values.length) return;
+
+    const w = svg.clientWidth || 600;
+    const h = Math.max(svg.clientHeight || 150, 60);
+    svg.innerHTML = '';
+
+    const max = Math.max(...values);
+    const min = Math.min(...values);
+    const pad = 6;
+    const step = (w - pad * 2) / (values.length - 1 || 1);
+
+    const norm = v => {
+        if (max === min) return h / 2;
+        return h - pad - ((v - min) / (max - min)) * (h - pad * 2);
+    };
+
+    let d = '';
+    values.forEach((v, i) => {
+        const x = pad + i * step;
+        const y = norm(v);
+        d += (i === 0 ? 'M' : 'L') + x + ' ' + y + ' ';
+    });
+
+    const areaD = `${d} L ${w - pad} ${h - pad} L ${pad} ${h - pad} Z`;
+
+    const ns = 'http://www.w3.org/2000/svg';
+
+    const area = document.createElementNS(ns,'path');
+    area.setAttribute('d', areaD);
+    area.setAttribute('fill', 'rgba(99,102,241,0.08)');
+
+    const path = document.createElementNS(ns,'path');
+    path.setAttribute('d', d);
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke', '#6366F1');
+    path.setAttribute('stroke-width', '2');
+    path.setAttribute('stroke-linejoin', 'round');
+    path.setAttribute('stroke-linecap', 'round');
+
+    svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+    svg.appendChild(area);
+    svg.appendChild(path);
+
+    values.forEach((v, i) => {
+        const circle = document.createElementNS(ns,'circle');
+        circle.setAttribute('cx', pad + i * step);
+        circle.setAttribute('cy', norm(v));
+        circle.setAttribute('r', i === values.length - 1 ? 3.5 : 2.5);
+        circle.setAttribute('fill', i === values.length - 1 ? '#4338CA' : '#A78BFA');
+        svg.appendChild(circle);
+    });
+})();
+</script>
+
+</body>
+</html>

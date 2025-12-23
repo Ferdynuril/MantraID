@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title><%= title || (manga ? `${manga} - Chapter ${chapter}` : 'Chapter') %></title>
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="min-h-screen bg-gray-900 text-gray-100 flex flex-col">
+
+  <!-- ================= HEADER ================= -->
+  <header id="readerHeader"
+          class="bg-gray-800 border-b border-gray-700 fixed top-0 inset-x-0 z-40
+                 transition-transform duration-300">
+    <div class="max-w-4xl mx-auto px-4 py-3 space-y-3">
+
+      <!-- Title -->
+      <div>
+        <a href="/manga/<%= manga %>"
+           class="block text-lg font-semibold hover:text-blue-400 transition truncate">
+          <%= title || 'Unknown Manga' %>
+        </a>
+        <div class="text-sm text-gray-400">
+          Chapter <%= chapter %>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="flex gap-2 justify-between sm:justify-end">
+        <% if (prevUrl) { %>
+          <a href="<%= prevUrl %>"
+             class="w-full sm:w-auto text-center px-4 py-2 rounded-md
+                    bg-gray-700 hover:bg-gray-600 transition text-sm font-medium">
+            < Previous
+          </a>
+        <% } %>
+
+        <% if (nextUrl) { %>
+          <a href="<%= nextUrl %>"
+             class="w-full sm:w-auto text-center px-4 py-2 rounded-md
+                    bg-blue-600 hover:bg-blue-500 transition text-sm font-medium">
+            Next >
+          </a>
+        <% } %>
+      </nav>
+
+    </div>
+  </header>
+
+  <!-- Spacer (to offset fixed header) -->
+  <div class="h-[104px]"></div>
+
+  <!-- ================= READER ================= -->
+  <main class="flex-1 max-w-4xl mx-auto py-6 w-full px-2">
+    <% if (!images || images.length === 0) { %>
+      <div class="text-center py-20 text-gray-400">
+        No pages available.
+      </div>
+    <% } else { %>
+      <div id="pages" class="space-y-4">
+        <% images.forEach((img, idx) => { %>
+          <figure class="relative bg-gray-800 rounded-lg overflow-hidden border border-gray-700">
+
+            <!-- Loader -->
+            <div class="page-loader absolute inset-0 flex items-center justify-center bg-black/50 z-10">
+              <svg class="animate-spin h-8 w-8 text-gray-300" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10"
+                        stroke="currentColor" stroke-width="4" fill="none"/>
+                <path class="opacity-75" fill="currentColor"
+                      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
+              </svg>
+            </div>
+
+            <!-- Image -->
+            <img
+              data-src="<%= img %>"
+              alt="Page <%= idx + 1 %>"
+              class="page-image w-full h-auto block opacity-0 transition-opacity duration-300"
+            >
+          </figure>
+        <% }) %>
+      </div>
+    <% } %>
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="bottom-4 z-30">
+    <div class="max-w-4xl mx-auto px-4 flex gap-2">
+      <% if (prevUrl) { %>
+        <a href="<%= prevUrl %>"
+           class="flex-1 text-center px-4 py-2 rounded-md
+                  bg-gray-700 hover:bg-gray-600 transition text-sm font-medium">
+          ← Previous
+        </a>
+      <% } %>
+
+      <% if (nextUrl) { %>
+        <a href="<%= nextUrl %>"
+           class="flex-1 text-center px-4 py-2 rounded-md
+                  bg-blue-600 hover:bg-blue-500 transition text-sm font-medium">
+          Next →
+        </a>
+      <% } %>
+    </div>
+  </footer>
+
+  <!-- ================= SCRIPT ================= -->
+  <script>
+    (() => {
+      /* ========= IMAGE LOADING ========= */
+      const images = document.querySelectorAll('.page-image');
+
+      const showImage = img => {
+        img.classList.remove('opacity-0');
+        const loader = img.closest('figure').querySelector('.page-loader');
+        if (loader) loader.remove();
+      };
+
+      images.forEach(img => {
+        img.addEventListener('load', () => showImage(img));
+        img.addEventListener('error', () => {
+          const loader = img.closest('figure').querySelector('.page-loader');
+          if (loader) loader.innerHTML =
+            '<span class="text-sm text-red-400">Failed to load</span>';
+        });
+      });
+
+      if ('IntersectionObserver' in window) {
+        const io = new IntersectionObserver(entries => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              const img = entry.target;
+              if (!img.src) img.src = img.dataset.src;
+              io.unobserve(img);
+            }
+          });
+        }, { rootMargin: '400px 0px' });
+
+        images.forEach(img => io.observe(img));
+      } else {
+        images.forEach(img => img.src = img.dataset.src);
+      }
+
+      /* ========= HEADER AUTO HIDE ========= */
+      const header = document.getElementById('readerHeader');
+      let lastScroll = window.scrollY;
+      let headerVisible = true;
+
+      const showHeader = () => {
+        header.style.transform = 'translateY(0)';
+        headerVisible = true;
+      };
+
+      const hideHeader = () => {
+        header.style.transform = 'translateY(-100%)';
+        headerVisible = false;
+      };
+
+      window.addEventListener('scroll', () => {
+        const current = window.scrollY;
+
+        if (current > lastScroll && current > 120) {
+          hideHeader(); // scroll down
+        } else {
+          showHeader(); // scroll up
+        }
+
+        lastScroll = current;
+      });
+
+      // Tap / click anywhere to toggle header
+      document.addEventListener('click', () => {
+        headerVisible ? hideHeader() : showHeader();
+      });
+    })();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-100 text-slate-800 min-h-screen">
+
+<div class="flex">
+  <!-- ================= SIDEBAR ================= -->
+  <aside id="sidebar" class="w-64 bg-white border-r border-slate-200 min-h-screen p-4 hidden md:block">
+            <div class="mb-8">
+                <h1 class="text-xl font-semibold">Admin</h1>
+                <p class="text-sm text-slate-500">Dashboard panel</p>
+            </div>
+
+            <nav class="space-y-1">
+                <a href="/admin" class="flex items-center gap-3 px-3 py-2 rounded hover:bg-slate-50 <% if (typeof active !== 'undefined' && active==='home') { %> bg-slate-100 font-medium <% } %>">
+                    <!-- home icon -->
+                    <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9.5l9-7 9 7V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1V9.5z"/></svg>
+                    <span>Home</span>
+                </a>
+
+                <a href="/admin/mangalist" class="flex items-center gap-3 px-3 py-2 rounded hover:bg-slate-50 <% if (typeof active !== 'undefined' && active==='mangalist') { %> bg-slate-100 font-medium <% } %>">
+                    <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 20l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 12l9-5-9-5-9 5 9 5z"/></svg>
+                    <span>MangaList</span>
+                </a>
+
+                <a href="/anything" class="flex items-center gap-3 px-3 py-2 rounded hover:bg-slate-50 <% if (typeof active !== 'undefined' && active==='anything') { %> bg-slate-100 font-medium <% } %>">
+                    <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m4 4v-2a2 2 0 00-2-2h-1m-6 6v-5a2 2 0 012-2h3"/></svg>
+                    <span>Anything</span>
+                </a>
+            </nav>
+
+            <div class="mt-8 text-xs text-slate-400">
+                <div>Quick links</div>
+                <ul class="mt-2 space-y-1">
+                    <li><a href="/settings" class="hover:underline">Settings</a></li>
+                    <li><a href="/profile" class="hover:underline">Profile</a></li>
+                </ul>
+            </div>
+        </aside>
+
+  <!-- ================= MAIN ================= -->
+<div class="flex-1 min-h-screen">
+  <div class="flex-1">
+    <header class="bg-white border-b border-slate-200 p-4 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <button id="mobileMenuBtn" class="md:hidden p-2 rounded bg-slate-100">
+                        <svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                    </button>
+                    <h2 class="text-lg font-semibold">Dashboard</h2>
+                    <p class="text-sm text-slate-500">Overview & analytics</p>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <div class="text-sm text-slate-500 hidden sm:block">Welcome, <span class="font-medium"><%= (typeof username !== 'undefined') ? username : 'Admin' %></span></div>
+                    <button class="p-2 rounded bg-slate-100">
+                        <svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5"/></svg>
+                    </button>
+                </div>
+            </header>
+    
+
+    <!-- ================= TABLE ================= -->
+    <main class="p-6">
+      <div class="p-4 flex justify-between">
+      <h2 class="text-lg font-semibold">Manga List</h2>
+      <button id="btnAdd"
+        class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+        + New Manga
+      </button>
+    </div>
+      <div class="overflow-x-auto bg-white rounded border">
+        <table class="min-w-full divide-y">
+          <thead class="bg-slate-50">
+            <tr>
+              <th class="px-4 py-3 text-left text-xs font-medium">Title</th>
+              <th class="px-4 py-3 text-left text-xs font-medium">Author</th>
+              <th class="px-4 py-3 text-left text-xs font-medium">Status</th>
+              <th class="px-4 py-3 text-right text-xs font-medium">Action</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y">
+            <% mangas.forEach(m => { %>
+            <tr>
+              <td class="px-4 py-3">
+                <div class="font-medium"><%= m.title %></div>
+                <div class="text-xs text-gray-500"><%= m.id %></div>
+              </td>
+              <td class="px-4 py-3">
+                <%= m.author %>
+              </td>
+              <td class="px-4 py-3"><%= m.status %></td>
+              <td class="px-4 py-3 text-right space-x-2">
+                <button
+                  class="btnEdit px-3 py-1 bg-amber-100 text-amber-800 rounded"
+                  data-manga='<%- JSON.stringify(m) %>'>
+                  Edit
+                </button>
+                <button
+                  class="btnDelete px-3 py-1 bg-red-600 text-white rounded"
+                  data-id="<%= m.id %>"
+                  data-title="<%= m.title %>">
+                  Delete
+                </button>
+              </td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ================= MODAL ================= -->
+<div id="modal"
+  class="fixed inset-0 bg-black/40 hidden z-50 flex items-center justify-center">
+
+  <div class="bg-white w-full max-w-md rounded shadow-lg p-6 relative">
+    <h3 id="modalTitle" class="text-lg font-semibold mb-4">New Manga</h3>
+
+    <form id="mangaForm" class="space-y-3">
+  <input type="hidden" id="mangaId"> <!-- penanda edit -->
+<input id="slugInput" placeholder="ID / Slug" class="w-full border px-3 py-2 rounded" required>
+
+  <input id="titleInput" placeholder="Title" class="w-full border px-3 py-2 rounded" required>
+  <input id="altTitleInput" placeholder="Alternative Title" class="w-full border px-3 py-2 rounded">
+
+  <div class="grid grid-cols-2 gap-2">
+    <input id="authorInput" placeholder="Author" class="border px-3 py-2 rounded">
+    <input id="artistInput" placeholder="Artist" class="border px-3 py-2 rounded">
+  </div>
+
+  <input id="genreInput" placeholder="Genre (comma separated)" class="w-full border px-3 py-2 rounded">
+  <input id="themeInput" placeholder="Theme (comma separated)" class="w-full border px-3 py-2 rounded">
+
+  <div class="grid grid-cols-2 gap-2">
+    <input id="yearInput" type="number" placeholder="Release Year" class="border px-3 py-2 rounded">
+    <input id="ratingInput" placeholder="Rating" class="border px-3 py-2 rounded">
+  </div>
+
+  <input id="serializationInput" placeholder="Serialization" class="w-full border px-3 py-2 rounded">
+
+  <select id="statusInput" class="w-full border px-3 py-2 rounded">
+    <option value="Ongoing">Ongoing</option>
+    <option value="Completed">Completed</option>
+    <option value="Dropped">Dropped</option>
+  </select>
+
+  <label class="flex items-center gap-2">
+    <input type="checkbox" id="projectInput">
+    <span>Project</span>
+  </label>
+
+  <textarea id="descriptionInput"
+    placeholder="Description"
+    class="w-full border px-3 py-2 rounded h-24"></textarea>
+
+  <div class="flex justify-end gap-2">
+    <button type="button" id="btnCancel" class="border px-4 py-2 rounded">Cancel</button>
+    <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded">Save</button>
+  </div>
+</form>
+
+  </div>
+</div>
+</div>
+
+<script>
+/* ================= MODAL LOGIC ================= */
+const modal = document.getElementById('modal');
+const modalTitle = document.getElementById('modalTitle');
+const form = document.getElementById('mangaForm');
+const idInput = document.getElementById('mangaId');
+const titleInput = document.getElementById('titleInput');
+const statusInput = document.getElementById('statusInput');
+const mangaIdInput = document.getElementById('mangaId');
+const slugInput = document.getElementById('slugInput');
+const altTitleInput = document.getElementById('altTitleInput');
+const authorInput = document.getElementById('authorInput');
+const artistInput = document.getElementById('artistInput');
+const genreInput = document.getElementById('genreInput');
+const themeInput = document.getElementById('themeInput');
+const yearInput = document.getElementById('yearInput');
+const ratingInput = document.getElementById('ratingInput');
+const serializationInput = document.getElementById('serializationInput');
+const projectInput = document.getElementById('projectInput');
+const descriptionInput = document.getElementById('descriptionInput');
+
+
+document.getElementById('btnAdd').onclick = () => {
+  modalTitle.textContent = 'New Manga';
+  mangaIdInput.value = ''; // CREATE MODE
+  slugInput.value = '';
+  titleInput.value = '';
+  statusInput.value = 'Ongoing';
+  modal.classList.remove('hidden');
+};
+
+
+document.querySelectorAll('.btnEdit').forEach(btn => {
+  btn.onclick = () => {
+    modalTitle.textContent = 'Edit Manga';
+
+    const m = JSON.parse(btn.dataset.manga);
+
+    mangaIdInput.value = m.id; // ID LAMA
+    slugInput.value = m.id;
+    titleInput.value = m.title;
+    altTitleInput.value = m.alternative_title;
+    authorInput.value = m.author;
+    artistInput.value = m.artist;
+    genreInput.value = m.genre.join(', ');
+    themeInput.value = m.theme.join(', ');
+    yearInput.value = m.release_year;
+    ratingInput.value = m.rating;
+    serializationInput.value = m.serialization;
+    statusInput.value = m.status;
+    projectInput.checked = m.project;
+    descriptionInput.value = m.description;
+
+    modal.classList.remove('hidden');
+  };
+});
+
+
+document.getElementById('btnCancel').onclick = () => {
+  modal.classList.add('hidden');
+};
+
+/* ================= CREATE & UPDATE ================= */
+form.onsubmit = async e => {
+  e.preventDefault();
+
+  const payload = {
+    id: slugInput.value,
+    project: projectInput.checked,
+    title: titleInput.value,
+    alternative_title: altTitleInput.value,
+    author: authorInput.value,
+    artist: artistInput.value,
+    genre: genreInput.value.split(',').map(s => s.trim()).filter(Boolean),
+    theme: themeInput.value.split(',').map(s => s.trim()).filter(Boolean),
+    status: statusInput.value,
+    release_year: yearInput.value,
+    serialization: serializationInput.value,
+    rating: ratingInput.value,
+    description: descriptionInput.value
+  };
+
+  const editId = mangaIdInput.value;
+  const isEdit = Boolean(editId);
+
+  const url = isEdit
+    ? `/admin/mangalist/${editId}`
+    : `/admin/mangalist`;
+
+  const method = isEdit ? 'PUT' : 'POST';
+
+  const res = await fetch(url, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+
+  if (!res.ok) {
+    alert('Gagal menyimpan manga');
+    return;
+  }
+
+  location.reload();
+};
+
+
+/* ================= DELETE ================= */
+document.querySelectorAll('.btnDelete').forEach(btn => {
+  btn.onclick = async () => {
+    if (!confirm(`Delete "${btn.dataset.title}"?`)) return;
+    await fetch(`/admin/mangalist/${btn.dataset.id}`, { method: 'DELETE' });
+    location.reload();
+  };
+});
+</script>
+
+</body>
+</html>

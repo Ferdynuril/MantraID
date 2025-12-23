@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manga Home</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+
+
+<body class="bg-gray-900 text-gray-100">
+  <!-- Navbar -->
+
+  <%- include("partial/navbar") %>
+
+<!-- POPULAR SECTION -->
+<div class="max-w-7xl mx-auto p-4 flex flex-col md:flex-row gap-8">
+
+  <div class="overflow-hidden w-full">
+    <h1 class="text-xl font-bold mb-4">Popular </h1>
+
+    <div class="flex p-3 w-full sm:bg-blue-700 rounded-lg justify-center sm:justify-start">
+      <div class="grid grid-cols-3 text-[10px] sm:text-sm relative round outline outline-blue-500 rounded-lg 
+                  w-full max-w-xs overflow-hidden">
+        <button class="pop-btn bg-blue-500 px-2 py-1 text-center shadow-xl" data-target="day">Hari Ini</button>
+        <button class="pop-btn px-2 py-1 text-center shadow-xl" data-target="week">Minggu Ini</button>
+        <button class="pop-btn px-2 py-1 text-center shadow-xl" data-target="month">Bulan Ini</button>
+      </div>
+    </div>
+
+    <!-- POPULAR DAY -->
+    <div id="popular-day"
+         class="day grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 
+                gap-2 sm:gap-3 bg-gray-800 p-3 sm:p-5 rounded">
+      <% popularDay.slice(0, 6).forEach(m => { %>
+        <div class="text-center">
+          <a href="/Manga/<%= m.slug %>" class="hover:bg-gray-700 p-1 rounded block">
+            <img 
+              src="<%= m.cover %>" 
+              alt="<%= m.title %>"
+              class="w-full object-cover rounded"
+            />
+          </a>
+          <a href="/Manga/<%= m.slug %>"
+             class="font-semibold text-sm hover:text-blue-400 block truncate mt-1">
+            <%= m.title.replace(/-/g, " ") %>
+          </a>
+        </div>
+      <% }) %>
+    </div>
+
+    <!-- POPULAR WEEK -->
+    <div id="popular-week"
+         class="hidden grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 
+                gap-2 sm:gap-3 bg-gray-800 p-3 sm:p-5 rounded">
+      <% popularWeek.slice(0, 6).forEach(m => { %>
+        <div class="text-center">
+          <a href="/Manga/<%= m.slug %>" class="hover:bg-gray-700 p-1 rounded block">
+            <img 
+              src="<%= m.cover %>" 
+              alt="<%= m.title %>"
+              class="w-full object-cover rounded"
+            />
+          </a>
+          <a href="/Manga/<%= m.slug %>"
+             class="font-semibold text-sm hover:text-blue-400 block truncate mt-1">
+            <%= m.title.replace(/-/g, " ") %>
+          </a>
+        </div>
+      <% }) %>
+    </div>
+
+    <!-- POPULAR MONTH -->
+    <div id="popular-month"
+         class="hidden grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 
+                gap-2 sm:gap-3 bg-gray-800 p-3 sm:p-5 rounded">
+      <% popularMonth.slice(0, 6).forEach(m => { %>
+        <div class="text-center">
+          <a href="/Manga/<%= m.slug %>" class="hover:bg-gray-700 p-1 rounded block">
+            <img 
+              src="<%= m.cover %>" 
+              alt="<%= m.title %>"
+              class="w-full object-cover rounded"
+            />
+          </a>
+          <a href="/Manga/<%= m.slug %>"
+             class="font-semibold text-sm hover:text-blue-400 block truncate mt-1">
+            <%= m.title.replace(/-/g, " ") %>
+          </a>
+        </div>
+      <% }) %>
+    </div>
+
+  </div>
+</div>
+
+  <script>
+  const bt = document.querySelectorAll(".pop-btn");
+
+  // Section mapping
+  const sc = {
+    day: document.getElementById("popular-day"),
+    week: document.getElementById("popular-week"),
+    month: document.getElementById("popular-month")
+  };
+
+  bt.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const target = btn.dataset.target;
+
+      // Reset all buttons → non-active style
+      bt.forEach(b => {
+        b.classList.remove("bg-blue-500");
+      });
+
+      // Activate clicked button
+      btn.classList.add("bg-blue-500");
+
+      // Hide all sections
+      Object.values(sc).forEach(sec => sec.classList.add("hidden"));
+
+      // Show target section
+      sc[target].classList.remove("hidden");
+    });
+  });
+</script>
+
+
+
+<!-- MAIN WRAPPER -->
+<div class="max-w-7xl mx-auto p-4 flex flex-col md:flex-row gap-8">
+
+  <!-- ============================= -->
+  <!-- LEFT SECTION: MANGA LIST -->
+  <!-- ============================= -->
+   
+  <div class="flex-1">
+      <div class="justify-between items-center flex border-b-4 border-blue-300 mb-2">
+         <h1 class="text-3xl font-bold mb-2">Latest Updates</h1>
+         <div class="flex justify-center items-center">
+            <a href="" class="text-center bg-blue-500 mb-2 text-md w-20 h-10 flex items-center justify-center rounded-lg hover:bg-blue-600 transition">
+              More
+            </a>
+          </div>
+      </div>
+     
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 gap-5">
+
+        <% latest.slice(0, 8).forEach(m => { %>
+        <div class="bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition relative">
+
+          <!-- COVER -->
+          
+          <a href="/Manga/<%= m.slug %>" class="block group overflow-hidden rounded">
+            <img 
+                src="<%= m.cover %>" 
+                alt="<%= m.slug %> cover"
+                class="w-full object-cover transition-transform duration-300 group-hover:scale-110"
+            />
+            </a>
+            <div class="<%= m.status === 'Ongoing' ? 'bg-blue-500' : m.status === 'Completed' ? 'bg-green-500' : m.status === 'Dropped' ? 'bg-red-500' : 'bg-gray-500' %> absolute -left-[40px] top-3 w-[160px] -rotate-35  h-7 text-center flex items-center justify-center text-white rounded">
+              <%= m.status %>
+            </div>
+          <div class="absolute top-1 right-1 w-8 h-5 overflow-hidden rounded shadow"><img alt="JP" class="w-full h-full object-cover" src="https://flagcdn.com/w320/jp.png"></div>  
+
+          <div class="p-3">
+
+            <!-- TITLE -->
+            <a href="/Manga/<%= m.slug %>"
+               class="font-semibold text-sm hover:text-blue-400 block truncate">
+              <%= m.title.replace(/-/g, " ") %>
+            </a>
+
+            <!-- 3 LATEST CHAPTERS -->
+            <div class="mt-2 space-y-1">
+              <% m.chapters.slice(0,3).forEach(ch => { %>
+              <a href="/Manga/<%= m.slug %>/<%= ch.url %>"
+                 class="flex justify-between items-center text-xs bg-gray-700 hover:bg-gray-600 py-1 px-2 rounded">
+                <span>Ch <%= ch.chapter %></span>
+                <span class="text-[11px] text-gray-400"><%= ch.ago %></span>
+              </a>
+              <% }) %>
+            </div>
+
+          </div>
+        </div>
+        <% }) %>
+
+      </div>
+      <div class="justify-between items-center flex mt-10 border-b-4 border-blue-300 mb-2">
+         <h1 class="text-3xl font-bold mb-2">Project</h1>
+         <div class="flex justify-center items-center">
+            <a href="" class="text-center bg-blue-500 mb-2 text-md w-20 h-10 flex items-center justify-center rounded-lg hover:bg-blue-600 transition">
+              More
+            </a>
+          </div>
+      </div>
+      
+      <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 gap-5  ">
+
+        <% latest
+          .filter(m => m.project === true)
+          .slice(0, 8)
+          .forEach(m => { %>
+
+          <div class="bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition relative">
+
+            <!-- COVER -->
+            <a href="/Manga/<%= m.slug %>" class="block group overflow-hidden rounded">
+              <img 
+                src="<%= m.cover %>" 
+                alt="<%= m.slug %> cover"
+                class="w-full object-cover transition-transform duration-300 group-hover:scale-110"
+              />
+            </a>
+
+            <div class="absolute top-1 right-1 w-8 h-5 overflow-hidden rounded shadow">
+              <img alt="JP" class="w-full h-full object-cover" src="https://flagcdn.com/w320/jp.png">
+            </div>  
+
+            <div class="p-3">
+              <a href="/Manga/<%= m.slug %>"
+                class="font-semibold text-sm hover:text-blue-400 block truncate">
+                <%= m.title.replace(/-/g, " ") %>
+              </a>
+
+              <div class="mt-2 space-y-1">
+                <% m.chapters.slice(0,3).forEach(ch => { %>
+                  <a href="/Manga/<%= m.slug %>/<%= ch.url %>"
+                    class="flex justify-between items-center text-xs bg-gray-700 hover:bg-gray-600 py-1 px-2 rounded">
+                    <span>Ch <%= ch.chapter %></span>
+                    <span class="text-[11px] text-gray-400"><%= ch.ago %></span>
+                  </a>
+                <% }) %>
+              </div>
+            </div>
+
+          </div>
+
+        <% }) %>
+
+      </div>
+
+
+      <div class="justify-between items-center flex mt-10 border-b-4 border-blue-300 mb-2">
+         <h1 class="text-3xl font-bold mb-2">Project</h1>
+      </div>
+
+      <%
+        const tempGenre = latest.flatMap(m => m.genre);
+        const genre = [...new Set(tempGenre)]; 
+
+        // Shuffle
+        const shuffled = [...genre];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+
+        const randomGenres = shuffled.slice(0, 6); // max 6 genre
+      %>
+
+      <!-- GRID GENRE (FILTER) -->
+      <div id="genreButtons" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 mb-6">
+        <% randomGenres.forEach((g, index) => { %>
+          <button 
+            data-genre="<%= g.toLowerCase() %>"
+            class="genre-btn px-2 py-1 rounded text-center text-xs sm:text-sm block
+                  <% if (index === 0) { %> bg-blue-600 <% } else { %> bg-gray-700 hover:bg-gray-600 <% } %>">
+            <%= g %>
+          </button>
+        <% }) %>
+      </div>
+
+
+      <% randomGenres.forEach((g, index) => { %>
+      
+      <div 
+        class="genre-section <% if(index !== 0){ %> hidden <% } %>" 
+        id="section-<%= g.toLowerCase() %>">
+
+        <h3 class="text-xl font-semibold mt-6 mb-3"><%= g %></h3>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
+
+          <% latest
+            .filter(m => m.genre.includes(g))
+            .slice(0, 8)
+            .forEach(m => { %>
+
+            <div class="bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition">
+              <a href="/Manga/<%= m.slug %>" class="block group overflow-hidden">
+                <img src="<%= m.cover %>" class="w-full object-cover transition-transform duration-300 group-hover:scale-110">
+              </a>
+
+              <div class="p-3">
+                <a href="/Manga/<%= m.slug %>"
+                  class="font-semibold text-sm hover:text-blue-400 block truncate">
+                  <%= m.title.replace(/-/g, " ") %>
+                </a>
+
+                <div class="mt-2 space-y-1">
+                  <% m.chapters.slice(0,3).forEach(ch => { %>
+                  <a href="/Manga/<%= m.slug %>/<%= ch.url %>"
+                    class="flex justify-between items-center text-xs bg-gray-700 hover:bg-gray-600 py-1 px-2 rounded">
+                    <span>Ch <%= ch.chapter %></span>
+                    <span class="text-[11px] text-gray-400"><%= ch.ago %></span>
+                  </a>
+                  <% }) %>
+                </div>
+              </div>
+            </div>
+
+          <% }) %>
+
+        </div>
+
+      </div>
+
+    <% }) %>
+
+
+
+      
+  </div>
+
+
+  <!-- ============================= -->
+  <!-- RIGHT SECTION: SIDEBAR -->
+  <!-- ============================= -->
+  <aside class="w-full md:w-80 space-y-6">
+
+    <!-- SEARCH BOX -->
+    <div class="bg-gray-800 p-4 rounded-xl shadow">
+      <h2 class="text-lg font-semibold mb-3">Search</h2>
+
+      <input 
+        type="text"
+        placeholder="Cari manga..."
+        class="w-full px-3 py-2 rounded bg-gray-700 border border-gray-600 text-sm placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+      />
+    </div>
+
+
+    <!-- GENRE LIST -->
+    <div class="bg-gray-800 p-4 rounded-xl shadow">
+      <h2 class="text-lg font-semibold mb-3">Genres</h2>
+
+      <div class="grid grid-cols-2 gap-2 text-sm">
+        
+        <% genre.forEach(g => { %>
+          <a href="/manga?genre=<%= g.toLowerCase() %>"
+             class="bg-gray-700 hover:bg-gray-600 px-2 py-1 rounded text-center">
+            <%= g %>
+          </a>
+        <% }) %>
+      </div>
+    </div>
+
+
+    <!-- TOP MANGA / POPULAR (DUMMY) -->
+    <div class="bg-gray-800 p-4 rounded-xl shadow">
+      <h2 class="text-lg font-semibold mb-3">Donasi</h2>
+      <a href="https://teer.id/ferdynuril" target="_blank">
+        <img src="/images/trakteer.png" alt="">
+      </a>
+      
+    </div>
+    <div class="bg-gray-800 p-4 rounded-xl shadow">
+      <h2 class="text-lg font-semibold mb-3">Discord</h2>
+      <a href="https://dsc.gg/mantraid" target="_blank">
+        <img src="/images/discord.png" alt="">
+      </a>
+      
+    </div>
+    
+
+
+    <!-- QUICK LINKS -->
+    <div class="bg-gray-800 p-4 rounded-xl shadow">
+      <h2 class="text-lg font-semibold mb-3">Quick Links</h2>
+
+      <ul class="space-y-2 text-sm">
+        <li><a href="/about" class="hover:text-blue-400">About</a></li>
+        <li><a href="/contact" class="hover:text-blue-400">Contact</a></li>
+        <li><a href="/privacy" class="hover:text-blue-400">Privacy Policy</a></li>
+        <li><a href="/dmca" class="hover:text-blue-400">DMCA</a></li>
+      </ul>
+    </div>
+
+  </aside>
+
+</div>
+
+<script>
+  const buttons = document.querySelectorAll(".genre-btn");
+  const sections = document.querySelectorAll(".genre-section");
+
+  buttons.forEach(btn => {
+    btn.addEventListener("click", () => {
+
+      const genre = btn.getAttribute("data-genre");
+
+      // Reset semua tombol
+      buttons.forEach(b => {
+        b.classList.remove("bg-blue-600");
+        b.classList.add("bg-gray-700", "hover:bg-gray-600");
+      });
+
+      // Active button
+      btn.classList.add("bg-blue-600");
+      btn.classList.remove("bg-gray-700", "hover:bg-gray-600");
+
+      // Show/hide section
+      sections.forEach(sec => {
+        sec.classList.toggle("hidden", sec.id !== "section-" + genre);
+      });
+
+    });
+  });
+</script>
+
+
+
+
+</body>
+</html>

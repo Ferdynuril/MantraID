@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= info?.title || manga %></title>
+      <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+
+<body class="bg-gray-900 text-gray-100">
+
+  <%
+    const firstChapter = chapters[0];
+    const lastChapter = chapters[chapters.length - 1];
+
+    // Deklarasi variabel yang digunakan di kedua bagian
+    const maxStars = 5;
+    const ratingValue = parseFloat(info.rating) || 0;
+    const ratingStars = Math.round((ratingValue / 10) * maxStars);
+  %>
+  <!-- Navbar -->
+
+  <%- include("partial/navbar") %>
+
+  <div class="max-w-6xl mx-auto p-4">
+    
+    <!-- ======================
+         MOBILE UI
+         ====================== -->
+    <div class="md:hidden">
+
+      <!-- COVER -->
+      <img src="<%= cover %>" class="rounded-xl w-full shadow-xl mb-4">
+
+      <!-- TITLE -->
+      <h1 class="text-2xl font-bold"><%= info?.title || manga %></h1>
+      <% if (info?.alternative_title) { %>
+        <p class="text-gray-400 italic text-sm mb-4"><%= info.alternative_title %></p>
+      <% } %>
+
+      <!-- RATING -->
+      <div class="bg-gray-800 mt-4 p-4 rounded-lg shadow mb-4">
+        <h3 class="font-semibold text-gray-400 mb-2">Rating</h3>
+        <div class="flex items-center gap-1">
+          <% for (let i = 0; i < ratingStars; i++) { %>
+            <!-- bintang penuh -->
+            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 
+                      3.967a1 1 0 00.95.69h4.18c.969 0 1.371 
+                      1.24.588 1.81l-3.385 2.46a1 1 0 
+                      00-.364 1.118l1.286 3.966c.3.922-.755 
+                      1.688-1.54 1.118l-3.385-2.46a1 1 0 
+                      00-1.176 0l-3.385 2.46c-.785.57-1.84-.196-1.54-1.118l1.286-3.966a1 
+                      1 0 00-.364-1.118L2.045 9.394c-.783-.57-.38-1.81.588-1.81h4.18a1 
+                      1 0 00.95-.69l1.286-3.967z"/>
+            </svg>
+          <% } %>
+
+          <% for (let i = ratingStars; i < maxStars; i++) { %>
+            <!-- bintang kosong -->
+            <svg class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 
+                      3.967a1 1 0 00.95.69h4.18c.969 0 1.371 
+                      1.24.588 1.81l-3.385 2.46a1 1 0 
+                      00-.364 1.118l1.286 3.966c.3.922-.755 
+                      1.688-1.54 1.118l-3.385-2.46a1 1 0 
+                      00-1.176 0l-3.385 2.46c-.785.57-1.84-.196-1.54-1.118l1.286-3.966a1 
+                      1 0 00-.364-1.118L2.045 9.394c-.783-.57-.38-1.81.588-1.81h4.18a1 
+                      1 0 00.95-.69l1.286-3.967z"/>
+            </svg>
+          <% } %>
+
+          <span class="ml-2 text-sm text-gray-300"><%= ratingValue.toFixed(2) %>/10</span>
+        </div>
+      </div>
+
+      <!-- INFO -->
+      <div class="bg-gray-800 p-4 rounded-lg mb-4">
+        <table class="text-sm w-full">
+          <tr><td class="font-semibold text-gray-400 w-28">Author</td><td><%= info.author %></td></tr>
+          <tr><td class="font-semibold text-gray-400">Artist</td><td><%= info.artist %></td></tr>
+          <tr><td class="font-semibold text-gray-400">Serialization</td><td><%= info.serialization %></td></tr>
+          <tr><td class="font-semibold text-gray-400">Status</td><td><%= info.status %></td></tr>
+          <tr><td class="font-semibold text-gray-400">Release</td><td><%= info.release_year %></td></tr>
+          <tr><td class="font-semibold text-gray-400">Post By</td><td><%= info.post %></td></tr>
+        </table>
+      </div>
+
+      <!-- GENRE -->
+      <div class="bg-gray-800 p-4 rounded-lg mb-4">
+        <h3 class="font-semibold mb-2 text-gray-300">Genre</h3>
+        <div class="flex flex-wrap gap-2">
+          <% info.genre.forEach(g => { %>
+            <a href="/Search?genre='<%= g.replace(/\s+/g, '-') %>'" class="bg-blue-500 hover:bg-gray-600 px-2 py-1 text-xs rounded"><%= g %></a>
+          <% }) %>
+        </div>
+      </div>
+
+      <!-- THEME -->
+      <div class="bg-gray-800 p-4 rounded-lg mb-4">
+        <h3 class="font-semibold mb-2 text-gray-300">Theme</h3>
+        <div class="flex flex-wrap gap-2">
+          <% info.theme.forEach(t => { %>
+            <a href="/Search?tema='<%= t.replace(/\s+/g, '-') %>'" class="bg-blue-500 hover:bg-gray-600 px-2 py-1 text-xs rounded"><%= t %></a>
+          <% }) %>
+        </div>
+      </div>
+
+      <!-- DESCRIPTION -->
+      <div class="bg-gray-800 p-4 rounded-lg mb-6">
+        <h3 class="font-semibold text-gray-300 mb-2">Description</h3>
+        <p class="text-gray-300 text-sm"><%= info.description %></p>
+      </div>
+
+      <!-- MOBILE NAV -->
+      <div class="flex gap-3 my-6">
+        <a href="/Manga/<%= manga %>/<%= firstChapter.url %>"
+          class="flex-1 text-center py-3 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm">
+          Chapter Awal
+        </a>
+        <a href="/Manga/<%= manga %>/<%= lastChapter.url %>"
+          class="flex-1 text-center py-3 bg-blue-600 hover:bg-blue-500 rounded-lg text-sm">
+          Chapter Terbaru
+        </a>
+      </div>
+
+      <!-- MOBILE CHAPTER LIST -->
+      <div class="mb-4 flex justify-between items-center">
+        <h2 class="text-2xl font-semibold mb-3">Chapters</h2>
+        <div class="flex gap-3">
+          <button id="sortMobile"
+            class="w-12 text-center py-3 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm">
+            DESC
+          </button>
+        </div>
+      </div>
+      
+      <ul id="chapterListMobile" class="grid grid-cols-2 gap-3">
+        <% chapters.forEach((ch, i) => { %>
+        <li data-ch="<%= ch.chapter %>">
+        <a href="/Manga/<%= manga %>/<%= ch.url %>"
+          class="block bg-gray-800 hover:bg-gray-700 px-4 py-4 rounded-lg shadow text-center">
+          Chapter <%= ch.chapter %>
+          <span class="text-xs text-gray-400 block mt-2"><%= ch.up %></span>
+        </a>
+      </li>
+
+        <% }) %>
+      </ul>
+
+
+      
+      
+
+    </div> <!-- END MOBILE -->
+
+
+    <!-- ======================
+         DESKTOP UI
+         ====================== -->
+    <div class="hidden md:flex gap-8">
+
+      <!-- LEFT -->
+      <div class="w-1/3">
+        <!-- COVER -->
+        <img src="<%= cover %>" class="rounded-xl w-full shadow-xl">
+
+        <!-- RATING -->
+        <div class="bg-gray-800 mt-4 p-4 rounded-lg shadow mb-4">
+          <h3 class="font-semibold text-gray-400 mb-2">Rating</h3>
+          <div class="flex items-center gap-1">
+            <% for (let i = 0; i < ratingStars; i++) { %>
+              <!-- bintang penuh -->
+              <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 
+                        3.967a1 1 0 00.95.69h4.18c.969 0 1.371 
+                        1.24.588 1.81l-3.385 2.46a1 1 0 
+                        00-.364 1.118l1.286 3.966c.3.922-.755 
+                        1.688-1.54 1.118l-3.385-2.46a1 1 0 
+                        00-1.176 0l-3.385 2.46c-.785.57-1.84-.196-1.54-1.118l1.286-3.966a1 
+                        1 0 00-.364-1.118L2.045 9.394c-.783-.57-.38-1.81.588-1.81h4.18a1 
+                        1 0 00.95-.69l1.286-3.967z"/>
+              </svg>
+            <% } %>
+
+            <% for (let i = ratingStars; i < maxStars; i++) { %>
+              <!-- bintang kosong -->
+              <svg class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 
+                        3.967a1 1 0 00.95.69h4.18c.969 0 1.371 
+                        1.24.588 1.81l-3.385 2.46a1 1 0 
+                        00-.364 1.118l1.286 3.966c.3.922-.755 
+                        1.688-1.54 1.118l-3.385-2.46a1 1 0 
+                        00-1.176 0l-3.385 2.46c-.785.57-1.84-.196-1.54-1.118l1.286-3.966a1 
+                        1 0 00-.364-1.118L2.045 9.394c-.783-.57-.38-1.81.588-1.81h4.18a1 
+                        1 0 00.95-.69l1.286-3.967z"/>
+              </svg>
+            <% } %>
+
+            <span class="ml-2 text-sm text-gray-300"><%= ratingValue.toFixed(2) %>/10</span>
+          </div>
+        </div>
+
+        <!-- INFO LIST -->
+        <div class="bg-gray-800 p-4 rounded-lg shadow">
+          <table class="w-full text-sm">
+            <tr><td class="font-semibold text-gray-400 w-28">Author</td><td><%= info.author %></td></tr>
+            <tr><td class="font-semibold text-gray-400">Artist</td><td><%= info.artist %></td></tr>
+            <tr><td class="font-semibold text-gray-400">Serialization</td><td><%= info.serialization %></td></tr>
+            <tr><td class="font-semibold text-gray-400">Status</td><td><%= info.status %></td></tr>
+            <tr><td class="font-semibold text-gray-400">Release</td><td><%= info.release_year %></td></tr>
+            <tr><td class="font-semibold text-gray-400">Post By</td><td><%= info.post %></td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- RIGHT -->
+      <div class="w-2/3">
+
+        <h1 class="text-3xl font-bold mb-1"><%= info?.title || manga %></h1>
+        <% if (info?.alternative_title) { %>
+        <p class="text-gray-400 italic mb-4"><%= info.alternative_title %></p>
+        <% } %>
+
+        <div class="bg-gray-800 p-4 rounded-lg shadow mb-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            
+            <!-- Genre -->
+            <div>
+              <h3 class="font-semibold text-gray-300 mb-1">Genre</h3>
+              <div class="flex flex-wrap gap-2 mb-4">
+                <% info.genre.forEach(g => { %>
+                  <a href="/Search?genre=<%= g.replace(/\s+/g, '-') %>"
+                    class="bg-blue-500 hover:bg-gray-600 px-2 py-1 text-xs rounded">
+                    <%= g %>
+                  </a>
+                <% }) %>
+              </div>
+            </div>
+
+            <!-- Theme -->
+            <div>
+              <h3 class="font-semibold text-gray-300 mb-1">Theme</h3>
+              <div class="flex flex-wrap gap-2 mb-4">
+                <% info.theme.forEach(t => { %>
+                  <a href="/Search?tema=<%= t.replace(/\s+/g, '-') %>"
+                    class="bg-blue-500 hover:bg-gray-600 px-2 py-1 text-xs rounded">
+                    <%= t %>
+                  </a>
+                <% }) %>
+              </div>
+            </div>
+
+          </div>
+
+
+          <!-- DESCRIPTION -->
+          <h3 class="font-semibold text-gray-300 mb-2">Description</h3>
+          <p class="text-gray-300 text-sm"><%= info.description %></p>
+
+        </div>
+
+        <!-- DESKTOP NAV -->
+        <div class="flex gap-3 my-6">
+          <a href="/Manga/<%= manga %>/<%= firstChapter.url %>"
+            class="flex-1 text-center py-3 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm">
+            Chapter Awal
+          </a>
+          <a href="/Manga/<%= manga %>/<%= lastChapter.url %>"
+            class="flex-1 text-center py-3 bg-blue-600 hover:bg-blue-500 rounded-lg text-sm">
+            Chapter Terbaru
+          </a>
+        </div>
+
+        <div class="mb-4 flex justify-between items-center">
+          <h2 class="text-2xl font-semibold mb-3">Chapters</h2>
+          <div class="flex gap-3">
+            <button id="sortDesktop"
+              class="w-12 text-center py-3 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm">
+              DESC
+            </button>
+          </div>
+        </div>
+
+        <ul id="chapterListDesktop" class="grid grid-cols-2 lg:grid-cols-3 gap-3 overflow-y-auto max-h-[400px] pr-2">
+          <% chapters.forEach((ch, i) => { %>
+            <li data-ch="<%= ch.chapter %>" 
+              class="bg-gray-800 hover:bg-gray-700 p-4 rounded-xl shadow-md transition text-left flex flex-col">
+
+            <a href="/Manga/<%= manga %>/<%= ch.url %>"
+              class="text-base font-semibold text-white visited:text-blue-400">
+              Chapter <%= ch.chapter %>
+              <span class="text-xs text-gray-400 block mt-2"><%= ch.up %></span>
+            </a>
+
+          </li>
+
+          <% }) %>
+        </ul>
+
+
+
+
+
+
+      </div>
+    </div> <!-- END DESKTOP -->
+
+  </div>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  function initSort(listId, btnId) {
+    const list = document.getElementById(listId);
+    const btn  = document.getElementById(btnId);
+    if (!list || !btn) return;
+
+    let order = "desc"; // default
+
+    function applySort() {
+      let items = Array.from(list.children);
+
+      items.sort((a, b) => {
+        let ca = parseFloat(a.dataset.ch);
+        let cb = parseFloat(b.dataset.ch);
+        return order === "asc" ? ca - cb : cb - ca;
+      });
+
+      list.innerHTML = "";
+      items.forEach(li => list.appendChild(li));
+
+      btn.textContent = order.toUpperCase();
+    }
+
+    // === Sort sekali saat awal load ke DESC ===
+    applySort();
+
+    // === Sort saat tombol diklik ===
+    btn.addEventListener("click", () => {
+      order = order === "asc" ? "desc" : "asc";
+      applySort();
+    });
+  }
+
+  initSort("chapterListMobile", "sortMobile");
+  initSort("chapterListDesktop", "sortDesktop");
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const toggleBtn = document.getElementById("nav-toggle");
+  const menu = document.getElementById("navbar-default");
+
+  if (!toggleBtn || !menu) return;
+
+  toggleBtn.addEventListener("click", () => {
+    menu.classList.toggle("hidden");
+    toggleBtn.classList.toggle("bg-blue-600");
+  });
+});
+</script>
+
+</body>
+</html>
