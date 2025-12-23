@@ -270,7 +270,7 @@ exports.chapter = async (req, res) => {
 
   let prevUrl = null;
   let nextUrl = null;
-  
+
   addPopulerView(mangaSlug);
 
   try {
@@ -326,7 +326,9 @@ exports.chapter = async (req, res) => {
       const pageStr = page.toString().padStart(2, "0");
       const urls = [
         `${baseUrl}/${pageStr}_out.jpg`,
-        `${baseUrl}/${page}_out.jpg`
+        `${baseUrl}/${page}_out.jpg`,
+        `${baseUrl}/${pageStr}.jpg`,
+        `${baseUrl}/${page}.jpg`
       ];
 
       let found = false;
