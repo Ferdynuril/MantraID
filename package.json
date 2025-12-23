@@ -38,6 +38,9 @@
   "dependencies": {
   
     
+  "@google-cloud/firestore": "^8.0.0",
+  
+    
   "axios": "^1.13.2",
   
     

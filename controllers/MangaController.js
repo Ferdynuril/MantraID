@@ -11,7 +11,7 @@ const fetch = require("node-fetch");
 const axios = require("axios");
 const fs = require("fs");
 const path = require("path");
-const { db, admin } = require("../config/firebase");
+const { db } = require("../config/firebase");
 
 // =====================================================
 // CONSTANTS
@@ -247,21 +247,15 @@ exports.detail = async (req, res) => {
 // =====================================================
 
 async function addPopulerView(manga) {
-  const today = new Date().toISOString().slice(0, 10);
 
-  const ref = db
-    .collection("popular_views")
-    .doc(today)
-    .collection("manga")
-    .doc(manga);
+  await db
+    .collection("popular")
+    .doc(manga)
+    .set(
+      { count: FieldValue.increment(1) },
+      { merge: true }
+    );
 
-  await ref.set(
-    {
-      count: admin.firestore.FieldValue.increment(1),
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-    },
-    { merge: true }
-  );
 }
 
 

@@ -1,13 +1,8 @@
-const admin = require("firebase-admin");
+const { Firestore } = require("@google-cloud/firestore");
 
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.applicationDefault(),
-  });
-}
-
-const db = admin.firestore({
+const db = new Firestore({
+  projectId: "seventh-odyssey-478912-m5",
   databaseId: "mantraid",
 });
 
-module.exports = { db, admin };
+module.exports = { db };
