@@ -1,5 +1,7 @@
 const fs = require("fs");
 const path = require("path");
+const { db } = require("../config/firebase");
+
 
 
 /**
@@ -11,13 +13,12 @@ const path = require("path");
  * - Merge + sort (latest / popular)
  */
 
-exports.index = (req, res) => {
+exports.index = async (req, res) => {
   try {
     const DATA_DIR = path.join(__dirname, "../data");
 
-    const latestPath  = path.join(DATA_DIR, "latest.json");
-    const indexPath   = path.join(DATA_DIR, "index.json");
-    const populerPath = path.join(DATA_DIR, "populer.json");
+    const latestPath = path.join(DATA_DIR, "latest.json");
+    const indexPath  = path.join(DATA_DIR, "index.json");
 
     if (!fs.existsSync(latestPath) || !fs.existsSync(indexPath)) {
       return res.render("home", {
@@ -28,14 +29,11 @@ exports.index = (req, res) => {
       });
     }
 
-    // ===== LOAD JSON (ONCE) =====
-    const latestData  = JSON.parse(fs.readFileSync(latestPath, "utf8"));
-    const indexData   = JSON.parse(fs.readFileSync(indexPath, "utf8"));
-    const populerData = fs.existsSync(populerPath)
-      ? JSON.parse(fs.readFileSync(populerPath, "utf8"))
-      : {};
+    // ===== LOAD JSON =====
+    const latestData = JSON.parse(fs.readFileSync(latestPath, "utf8"));
+    const indexData  = JSON.parse(fs.readFileSync(indexPath, "utf8"));
 
-    // ===== BUILD META MAP =====
+    // ===== META MAP =====
     const metaMap = {};
     indexData.manga_list.forEach(m => {
       metaMap[m.id.toLowerCase()] = m;
@@ -45,83 +43,89 @@ exports.index = (req, res) => {
     const mangas = Object.entries(latestData).map(([slug, info]) => {
       const meta = metaMap[slug] || {};
 
-      const chapters = (info.latestChapters || []).map(c => ({
-        chapter: c.chapter.replace("-", "."),
-        url: c.chapter,
-        updated: formatDate(c.updated),
-        updatedRaw: c.updated,
-        ago: timeAgo(c.updated)
-      }));
-
       return {
         slug,
         title: meta.title || slug.replace(/-/g, " "),
         cover: info.cover || "/img/no-cover.jpg",
         project: meta.project || false,
-        chapters,
+        chapters: (info.latestChapters || []).map(c => ({
+          chapter: c.chapter.replace("-", "."),
+          url: c.chapter,
+          updated: formatDate(c.updated),
+          updatedRaw: c.updated,
+          ago: timeAgo(c.updated)
+        })),
         genre: meta.genre || [],
         status: meta.status || "Unknown"
       };
     });
 
-    // ===== POPULARITY =====
-    const populerDay   = getPopularity(populerData, "day");
-    const populerWeek  = getPopularity(populerData, "week");
-    const populerMonth = getPopularity(populerData, "month");
+    // ===== FIRESTORE POPULAR =====
+    const popularDay   = await getPopularRange(1);
+    const popularWeek  = await getPopularRange(7);
+    const popularMonth = await getPopularRange(30);
 
     mangas.forEach(m => {
-      m.populerDay   = populerDay[m.slug]   || 0;
-      m.populerWeek  = populerWeek[m.slug]  || 0;
-      m.populerMonth = populerMonth[m.slug] || 0;
+      m.populerDay   = popularDay[m.slug]   || 0;
+      m.populerWeek  = popularWeek[m.slug]  || 0;
+      m.populerMonth = popularMonth[m.slug] || 0;
     });
 
     // ===== SORTING =====
-    const mangasLatest = [...mangas].sort((a, b) => {
+    const latest = [...mangas].sort((a, b) => {
       const ad = new Date(a.chapters[0]?.updatedRaw || 0);
       const bd = new Date(b.chapters[0]?.updatedRaw || 0);
       return bd - ad;
     });
 
-    const mangasDay   = [...mangas].sort((a, b) => b.populerDay   - a.populerDay);
-    const mangasWeek  = [...mangas].sort((a, b) => b.populerWeek  - a.populerWeek);
-    const mangasMonth = [...mangas].sort((a, b) => b.populerMonth - a.populerMonth);
+    const day   = [...mangas].sort((a, b) => b.populerDay   - a.populerDay);
+    const week  = [...mangas].sort((a, b) => b.populerWeek  - a.populerWeek);
+    const month = [...mangas].sort((a, b) => b.populerMonth - a.populerMonth);
 
-    // ===== RENDER =====
     res.render("home", {
-      latest: mangasLatest,
-      popularDay: mangasDay,
-      popularWeek: mangasWeek,
-      popularMonth: mangasMonth
+      latest,
+      popularDay: day,
+      popularWeek: week,
+      popularMonth: month
     });
 
   } catch (err) {
     console.error("HOME ERROR:", err);
-    res.status(500).send("Error membaca data");
+    res.status(500).send("Error memuat home");
   }
 };
+
 
 // ===================================================
 // HELPERS
 // ===================================================
 
-function getPopularity(populerData, range = "day") {
-  const startDate = new Date();
-  if (range === "day") startDate.setDate(startDate.getDate() - 1);
-  if (range === "week") startDate.setDate(startDate.getDate() - 7);
-  if (range === "month") startDate.setMonth(startDate.getMonth() - 1);
-
+async function getPopularRange(days = 1) {
   const result = {};
+  const today = new Date();
 
-  for (const dateStr in populerData) {
-    if (new Date(dateStr) < startDate) continue;
+  for (let i = 0; i < days; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    const dateKey = d.toISOString().slice(0, 10);
 
-    for (const slug in populerData[dateStr]) {
-      result[slug] = (result[slug] || 0) + Number(populerData[dateStr][slug]);
+    const doc = await db
+      .collection("popular_daily")
+      .doc(dateKey)
+      .get();
+
+    if (!doc.exists) continue;
+
+    const data = doc.data();
+    for (const [slug, count] of Object.entries(data)) {
+      if (slug === "updatedAt") continue;
+      result[slug] = (result[slug] || 0) + count;
     }
   }
 
   return result;
 }
+
 
 function formatDate(dateString) {
   return new Date(dateString).toLocaleDateString("id-ID", {

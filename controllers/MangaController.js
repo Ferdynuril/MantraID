@@ -249,16 +249,20 @@ exports.detail = async (req, res) => {
 // =====================================================
 
 async function addPopulerView(manga) {
+  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
 
-  await db
-    .collection("popular")
-    .doc(manga)
-    .set(
-      { count: FieldValue.increment(1) },
-      { merge: true }
-    );
+  const ref = db.collection("popular_daily").doc(today);
 
+  await ref.set(
+    {
+      [manga]: FieldValue.increment(1),
+      updatedAt: FieldValue.serverTimestamp()
+    },
+    { merge: true }
+  );
 }
+
+
 
 
 // =====================================================
