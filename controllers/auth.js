@@ -16,7 +16,7 @@ const bcrypt = require("bcrypt");
 const DATA_DIR   = path.join(__dirname, "../data");
 const ADMIN_PATH = path.join(DATA_DIR, "admin.json");
 const LATEST_PATH  = path.join(DATA_DIR, "latest.json");
-const POPULER_PATH = path.join(DATA_DIR, "populer.json");
+const POPULER_PATH = path.join(DATA_DIR, "popular.json");
 const INDEX_PATH   = path.join(DATA_DIR, "index.json");
 
 // ====================================================

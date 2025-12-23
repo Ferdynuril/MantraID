@@ -42,11 +42,9 @@ app.use((req, res, next) => {
 const homeRoutes = require('./routes/home');
 const imageRoutes = require('./routes/image');
 const mangaRoutes = require('./routes/manga');
-const update = require('./routes/update');
 const authRoutes = require('./routes/auth');
 
 app.use('/admin', authRoutes);
-app.use('/update', update);
 
 app.use('/', homeRoutes);
 app.use('/image', imageRoutes);
