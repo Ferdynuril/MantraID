@@ -1,15 +1,12 @@
 const fs = require("fs");
 const path = require("path");
-const { db } = require("../config/firebase");
-
-
 
 /**
  * HOME CONTROLLER
  * --------------------------------------------------
  * - Load latest.json
  * - Load index.json (metadata)
- * - Load populer.json (views)
+ * - Load popular.json (views)
  * - Merge + sort (latest / popular)
  */
 
@@ -17,8 +14,9 @@ exports.index = async (req, res) => {
   try {
     const DATA_DIR = path.join(__dirname, "../data");
 
-    const latestPath = path.join(DATA_DIR, "latest.json");
-    const indexPath  = path.join(DATA_DIR, "index.json");
+    const latestPath  = path.join(DATA_DIR, "latest.json");
+    const indexPath   = path.join(DATA_DIR, "index.json");
+    const popularPath = path.join(DATA_DIR, "popular.json");
 
     if (!fs.existsSync(latestPath) || !fs.existsSync(indexPath)) {
       return res.render("home", {
@@ -30,8 +28,11 @@ exports.index = async (req, res) => {
     }
 
     // ===== LOAD JSON =====
-    const latestData = JSON.parse(fs.readFileSync(latestPath, "utf8"));
-    const indexData  = JSON.parse(fs.readFileSync(indexPath, "utf8"));
+    const latestData  = JSON.parse(fs.readFileSync(latestPath, "utf8"));
+    const indexData   = JSON.parse(fs.readFileSync(indexPath, "utf8"));
+    const popularData = fs.existsSync(popularPath)
+      ? JSON.parse(fs.readFileSync(popularPath, "utf8"))
+      : {};
 
     // ===== META MAP =====
     const metaMap = {};
@@ -42,6 +43,7 @@ exports.index = async (req, res) => {
     // ===== BUILD MANGA LIST =====
     const mangas = Object.entries(latestData).map(([slug, info]) => {
       const meta = metaMap[slug] || {};
+      const pop = popularData[slug] || { day: 0, week: 0, month: 0, total: 0 };
 
       return {
         slug,
@@ -56,19 +58,11 @@ exports.index = async (req, res) => {
           ago: timeAgo(c.updated)
         })),
         genre: meta.genre || [],
-        status: meta.status || "Unknown"
+        status: meta.status || "Unknown",
+        populerDay: pop.day,
+        populerWeek: pop.week,
+        populerMonth: pop.month
       };
-    });
-
-    // ===== FIRESTORE POPULAR =====
-    const popularDay   = await getPopularRange(1);
-    const popularWeek  = await getPopularRange(7);
-    const popularMonth = await getPopularRange(30);
-
-    mangas.forEach(m => {
-      m.populerDay   = popularDay[m.slug]   || 0;
-      m.populerWeek  = popularWeek[m.slug]  || 0;
-      m.populerMonth = popularMonth[m.slug] || 0;
     });
 
     // ===== SORTING =====
@@ -95,37 +89,9 @@ exports.index = async (req, res) => {
   }
 };
 
-
 // ===================================================
 // HELPERS
 // ===================================================
-
-async function getPopularRange(days = 1) {
-  const result = {};
-  const today = new Date();
-
-  for (let i = 0; i < days; i++) {
-    const d = new Date(today);
-    d.setDate(today.getDate() - i);
-    const dateKey = d.toISOString().slice(0, 10);
-
-    const doc = await db
-      .collection("popular_daily")
-      .doc(dateKey)
-      .get();
-
-    if (!doc.exists) continue;
-
-    const data = doc.data();
-    for (const [slug, count] of Object.entries(data)) {
-      if (slug === "updatedAt") continue;
-      result[slug] = (result[slug] || 0) + count;
-    }
-  }
-
-  return result;
-}
-
 
 function formatDate(dateString) {
   return new Date(dateString).toLocaleDateString("id-ID", {

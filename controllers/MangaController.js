@@ -3,7 +3,7 @@
  * =====================================================
  * - List manga + filter
  * - Detail manga & chapter
- * - Popular view counter
+ * - Popular view counter (buffered 1 menit on-demand)
  * - Helper utilities
  */
 
@@ -14,7 +14,6 @@ const path = require("path");
 const { db } = require("../config/firebase");
 const { FieldValue } = require("@google-cloud/firestore");
 
-
 // =====================================================
 // CONSTANTS
 // =====================================================
@@ -22,19 +21,19 @@ const { FieldValue } = require("@google-cloud/firestore");
 const BUCKET = "manga-storage-1";
 const DATA_DIR = path.join(__dirname, "../data");
 
-const LATEST_PATH  = path.join(DATA_DIR, "latest.json");
-const INDEX_PATH   = path.join(DATA_DIR, "index.json");
+const LATEST_PATH = path.join(DATA_DIR, "latest.json");
+const INDEX_PATH = path.join(DATA_DIR, "index.json");
+const POPULAR_TEMP_PATH = path.join(DATA_DIR, "popular_temp.json");
+const POPULAR_PATH = path.join(DATA_DIR, "popular.json");
 
 // =====================================================
 // UTILITIES
 // =====================================================
 
-/** Read JSON file safely */
 function readJSON(filePath) {
   return JSON.parse(fs.readFileSync(filePath, "utf8"));
 }
 
-/** Format date to Indonesian locale */
 function formatDate(dateString) {
   return new Date(dateString).toLocaleString("id-ID", {
     day: "2-digit",
@@ -43,10 +42,8 @@ function formatDate(dateString) {
   });
 }
 
-/** Human readable time ago */
 function timeAgo(dateString) {
   const diff = Date.now() - new Date(dateString).getTime();
-
   const s = diff / 1000;
   const m = s / 60;
   const h = m / 60;
@@ -61,7 +58,6 @@ function timeAgo(dateString) {
   return `${Math.floor(d / 365)} tahun lalu`;
 }
 
-/** Build metadata lookup map */
 function buildMetaMap(mangaList = []) {
   const map = {};
   mangaList.forEach(m => {
@@ -71,21 +67,100 @@ function buildMetaMap(mangaList = []) {
 }
 
 // =====================================================
+// POPULARITY (BUFFERED 1 MENIT)
+// =====================================================
+
+async function bufferPopularView(manga) {
+  let buffer = { views: {}, lastFlush: null };
+
+  if (fs.existsSync(POPULAR_TEMP_PATH)) {
+    buffer = JSON.parse(fs.readFileSync(POPULAR_TEMP_PATH, "utf8"));
+  }
+
+  // Tambahkan view
+  buffer.views[manga] = (buffer.views[manga] || 0) + 1;
+
+  const now = new Date();
+  let lastFlush = buffer.lastFlush ? new Date(buffer.lastFlush) : null;
+
+  // Flush jika sudah lebih dari 1 menit sejak terakhir flush
+  if (!lastFlush || now - lastFlush >= 60 * 1000) {
+    await flushPopularBuffer(buffer);
+    buffer = { views: {}, lastFlush: now.toISOString() }; // reset buffer
+  }
+
+  fs.writeFileSync(POPULAR_TEMP_PATH, JSON.stringify(buffer, null, 2));
+}
+
+async function flushPopularBuffer(buffer) {
+  const views = buffer.views || {};
+  if (!Object.keys(views).length) return;
+
+  const today = new Date().toISOString().slice(0, 10);
+  const ref = db.collection("popular_daily").doc(today);
+
+  const updateData = {};
+  for (const manga in views) {
+    updateData[manga] = FieldValue.increment(views[manga]);
+  }
+  updateData.updatedAt = FieldValue.serverTimestamp();
+
+  try {
+    await ref.set(updateData, { merge: true });
+    console.log("Flushed popular buffer to Firestore:", updateData);
+
+    await updatePopularJSON();
+  } catch (err) {
+    console.error("Error flushing popular buffer:", err);
+  }
+}
+
+async function updatePopularJSON() {
+  const snapshot = await db.collection("popular_daily").get();
+  const now = new Date();
+  const result = {};
+
+  snapshot.forEach(doc => {
+    const date = new Date(doc.id);
+    const data = doc.data();
+
+    for (const slug in data) {
+      if (slug === "updatedAt") continue;
+
+      if (!result[slug]) result[slug] = { day: 0, week: 0, month: 0, total: 0 };
+
+      const count = data[slug];
+      result[slug].total += count;
+
+      const diffDays = (now - date) / (1000 * 60 * 60 * 24);
+      if (diffDays <= 1) result[slug].day += count;
+      if (diffDays <= 7) result[slug].week += count;
+      if (diffDays <= 30) result[slug].month += count;
+    }
+  });
+
+  fs.writeFileSync(POPULAR_PATH, JSON.stringify(result, null, 2));
+  console.log("Updated popular.json");
+}
+
+async function getPopularityForManga(slug) {
+  if (!fs.existsSync(POPULAR_PATH)) return { day: 0, week: 0, month: 0, total: 0 };
+  const data = JSON.parse(fs.readFileSync(POPULAR_PATH, "utf8"));
+  return data[slug] || { day: 0, week: 0, month: 0, total: 0 };
+}
+
+// =====================================================
 // LIST MANGA
 // =====================================================
 
 exports.list = async (req, res) => {
   try {
-    // Load data once
     const latestData = readJSON(LATEST_PATH);
-    const metaData   = readJSON(INDEX_PATH);
-
+    const metaData = readJSON(INDEX_PATH);
     const metaMap = buildMetaMap(metaData.manga_list);
 
-    // Merge latest.json + index.json
     let mangas = Object.entries(latestData).map(([slug, info]) => {
       const meta = metaMap[slug] || {};
-
       return {
         slug,
         title: meta.title || slug.replace(/-/g, " "),
@@ -103,86 +178,57 @@ exports.list = async (req, res) => {
       };
     });
 
-    // ================= FILTER QUERY =================
-
+    // Filter, genre, theme, status count
     const tempGenre = mangas.flatMap(m => m.genre);
     const listGenre = [...new Set(tempGenre)].sort();
-
     const tempTheme = mangas.flatMap(m => m.theme);
     const listTheme = [...new Set(tempTheme)].sort();
 
     const themeCount = {};
     const genreCount = {};
-    const statusCount = {
-      Ongoing: 0,
-      Completed: 0,
-      Dropped: 0
-    };
+    const statusCount = { Ongoing: 0, Completed: 0, Dropped: 0 };
 
     for (const manga of mangas) {
       manga.theme.forEach(t => themeCount[t] = (themeCount[t] || 0) + 1);
       manga.genre.forEach(g => genreCount[g] = (genreCount[g] || 0) + 1);
-
-      if (statusCount[manga.status] !== undefined) {
-        statusCount[manga.status]++;
-      }
+      if (statusCount[manga.status] !== undefined) statusCount[manga.status]++;
     }
 
-    const TotalTheme = listTheme.map(t => ({
-      name: t,
-      total: themeCount[t] || 0
-    }));
+    const TotalTheme = listTheme.map(t => ({ name: t, total: themeCount[t] || 0 }));
+    const TotalGenre = listGenre.map(g => ({ name: g, total: genreCount[g] || 0 }));
+    const TotalStatus = Object.keys(statusCount).map(s => ({ name: s, total: statusCount[s] }));
 
-    const TotalGenre = listGenre.map(g => ({
-      name: g,
-      total: genreCount[g] || 0
-    }));
+    const { genre, theme, status, project, q } = req.query;
 
-    const TotalStatus = Object.keys(statusCount).map(s => ({
-      name: s,
-      total: statusCount[s]
-    }));
-
-
-    const { genre, theme, status, project } = req.query;
+    if (q) {
+      const keyword = q.toLowerCase();
+      mangas = mangas.filter(m =>
+        m.title.toLowerCase().includes(keyword) ||
+        m.slug.toLowerCase().includes(keyword)
+      );
+    }
 
     if (genre) {
       const genres = genre.split(",").map(g => g.toLowerCase());
-      mangas = mangas.filter(m =>
-        genres.every(g =>
-          m.genre.map(x => x.toLowerCase()).includes(g)
-        )
-      );
+      mangas = mangas.filter(m => genres.every(g => m.genre.map(x => x.toLowerCase()).includes(g)));
     }
 
     if (theme) {
       const themes = theme.split(",").map(t => t.toLowerCase());
-      mangas = mangas.filter(m =>
-        themes.every(t =>
-          m.theme.map(x => x.toLowerCase()).includes(t)
-        )
-      );
+      mangas = mangas.filter(m => themes.every(t => m.theme.map(x => x.toLowerCase()).includes(t)));
     }
 
     if (status) {
-      mangas = mangas.filter(
-        m => m.status.toLowerCase() === status.toLowerCase()
-      );
+      mangas = mangas.filter(m => m.status.toLowerCase() === status.toLowerCase());
     }
 
     if (project) {
-      mangas = mangas.filter(
-        m => String(m.project) === project
-      );
+      mangas = mangas.filter(m => String(m.project) === project);
     }
+
     const totalMangas = mangas.length;
 
-    
-
-    // ================= RENDER PAGE =================
-
-    res.render("mangalist", { mangas, totalMangas, TotalGenre, TotalTheme, TotalStatus });
-
+    res.render("mangalist", { mangas, totalMangas, TotalGenre, TotalTheme, TotalStatus, q });
   } catch (err) {
     console.error("List manga error:", err);
     res.status(500).send("Gagal memuat daftar manga");
@@ -198,30 +244,20 @@ exports.detail = async (req, res) => {
   const prefix = `${manga}/`;
 
   try {
-    // Fetch chapter folders
     const listUrl = `https://storage.googleapis.com/storage/v1/b/${BUCKET}/o?prefix=${prefix}&delimiter=/`;
     const folderResp = await fetch(listUrl);
     const folderData = await folderResp.json();
+    const chapterFolders = (folderData.prefixes || []).map(p => p.replace(prefix, "").replace("/", ""));
 
-    const chapterFolders = (folderData.prefixes || []).map(p =>
-      p.replace(prefix, "").replace("/", "")
-    );
-
-    // Load metadata
     const indexData = readJSON(INDEX_PATH);
-    const info = indexData.manga_list.find(
-      m => m.id.toLowerCase() === manga
-    ) || null;
-
+    const info = indexData.manga_list.find(m => m.id.toLowerCase() === manga) || null;
     const cover = `https://storage.googleapis.com/${BUCKET}/${manga}/Cover.jpg`;
 
-    // Fetch all files once
     const allFilesUrl = `https://storage.googleapis.com/storage/v1/b/${BUCKET}/o?prefix=${manga}/`;
     const allResp = await fetch(allFilesUrl);
     const allData = await allResp.json();
     const items = allData.items || [];
 
-    // Build chapter list with latest update
     const chapters = chapterFolders.map(ch => {
       const updatedDates = items
         .filter(i => i.name.startsWith(`${manga}/${ch}/`))
@@ -236,34 +272,19 @@ exports.detail = async (req, res) => {
       };
     });
 
-    res.render("manga", { manga, chapters, info, cover });
+    let popular = { day: 0, week: 0, month: 0, total: 0 };
+    try {
+      popular = await getPopularityForManga(manga);
+    } catch (e) {
+      console.error("Get popular error:", e.message);
+    }
 
+    res.render("manga", { manga, chapters, info, cover, popular });
   } catch (err) {
     console.error("Detail manga error:", err);
     res.send("Gagal mengambil data chapter");
   }
 };
-
-// =====================================================
-// POPULAR COUNTER
-// =====================================================
-
-async function addPopulerView(manga) {
-  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-
-  const ref = db.collection("popular_daily").doc(today);
-
-  await ref.set(
-    {
-      [manga]: FieldValue.increment(1),
-      updatedAt: FieldValue.serverTimestamp()
-    },
-    { merge: true }
-  );
-}
-
-
-
 
 // =====================================================
 // DETAIL CHAPTER
@@ -278,23 +299,16 @@ exports.chapter = async (req, res) => {
   let nextUrl = null;
 
   try {
-    await addPopulerView(mangaSlug);
+    await bufferPopularView(mangaSlug); // tambahkan view + flush jika >1 menit
   } catch (e) {
-    console.error("Popular counter error:", e.message);
+    console.error("Buffer popular error:", e.message);
   }
 
-
-
   try {
-    /* ================= LOAD METADATA ================= */
     const indexData = readJSON(INDEX_PATH);
-    const mangaInfo = indexData.manga_list.find(
-      m => m.id.toLowerCase() === mangaSlug
-    );
-
+    const mangaInfo = indexData.manga_list.find(m => m.id.toLowerCase() === mangaSlug);
     const title = mangaInfo?.title || mangaSlug.replace(/-/g, " ");
 
-    /* ================= GET CHAPTER LIST ================= */
     const listUrl = `https://storage.googleapis.com/storage/v1/b/${BUCKET}/o?prefix=${mangaSlug}/&delimiter=/`;
     const folderResp = await fetch(listUrl);
     const folderData = await folderResp.json();
@@ -303,29 +317,18 @@ exports.chapter = async (req, res) => {
       .map(p => p.replace(`${mangaSlug}/`, "").replace("/", ""));
 
     const normalize = v => v.replace(/\./g, "-");
-
     let index = chapterFolders.indexOf(chapter);
-
-    if (index === -1) {
-      index = chapterFolders.findIndex(
-        f => normalize(f) === normalize(chapter)
-      );
-    }
+    if (index === -1) index = chapterFolders.findIndex(f => normalize(f) === normalize(chapter));
 
     if (index !== -1) {
-      if (index > 0) {
-        prevUrl = `/manga/${mangaSlug}/${chapterFolders[index - 1]}`;
-      }
-      if (index < chapterFolders.length - 1) {
-        nextUrl = `/manga/${mangaSlug}/${chapterFolders[index + 1]}`;
-      }
+      if (index > 0) prevUrl = `/manga/${mangaSlug}/${chapterFolders[index - 1]}`;
+      if (index < chapterFolders.length - 1) nextUrl = `/manga/${mangaSlug}/${chapterFolders[index + 1]}`;
     }
 
-    /* ================= LOAD IMAGES ================= */
     const images = [];
     let page = 1;
 
-    const checkImage = async (url) => {
+    const checkImage = async url => {
       try {
         const res = await axios.head(url);
         return res.status === 200;
@@ -344,7 +347,6 @@ exports.chapter = async (req, res) => {
       ];
 
       let found = false;
-
       for (const url of urls) {
         if (await checkImage(url)) {
           images.push(`/image/proxy?url=${encodeURIComponent(url)}`);
@@ -357,7 +359,6 @@ exports.chapter = async (req, res) => {
       page++;
     }
 
-    /* ================= RENDER ================= */
     res.render("chapter", {
       title: `${title}`,
       manga: mangaSlug,
