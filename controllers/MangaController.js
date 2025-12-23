@@ -12,6 +12,8 @@ const axios = require("axios");
 const fs = require("fs");
 const path = require("path");
 const { db } = require("../config/firebase");
+const { FieldValue } = require("@google-cloud/firestore");
+
 
 // =====================================================
 // CONSTANTS
