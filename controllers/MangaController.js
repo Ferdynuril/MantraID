@@ -11,6 +11,7 @@ const fetch = require("node-fetch");
 const axios = require("axios");
 const fs = require("fs");
 const path = require("path");
+const { db, admin } = require("../config/firebase");
 
 // =====================================================
 // CONSTANTS
@@ -21,7 +22,6 @@ const DATA_DIR = path.join(__dirname, "../data");
 
 const LATEST_PATH  = path.join(DATA_DIR, "latest.json");
 const INDEX_PATH   = path.join(DATA_DIR, "index.json");
-const POPULER_PATH = path.join(DATA_DIR, "populer.json");
 
 // =====================================================
 // UTILITIES
@@ -246,18 +246,24 @@ exports.detail = async (req, res) => {
 // POPULAR COUNTER
 // =====================================================
 
-function addPopulerView(manga) {
-  let data = fs.existsSync(POPULER_PATH)
-    ? readJSON(POPULER_PATH)
-    : {};
+async function addPopulerView(manga) {
+  const today = new Date().toISOString().slice(0, 10);
 
-  const date = new Date().toISOString().slice(0, 10);
+  const ref = db
+    .collection("popular_views")
+    .doc(today)
+    .collection("manga")
+    .doc(manga);
 
-  data[date] = data[date] || {};
-  data[date][manga] = (data[date][manga] || 0) + 1;
-
-  fs.writeFileSync(POPULER_PATH, JSON.stringify(data, null, 2));
+  await ref.set(
+    {
+      count: admin.firestore.FieldValue.increment(1),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    },
+    { merge: true }
+  );
 }
+
 
 // =====================================================
 // DETAIL CHAPTER
@@ -271,7 +277,8 @@ exports.chapter = async (req, res) => {
   let prevUrl = null;
   let nextUrl = null;
 
-  addPopulerView(mangaSlug);
+  await addPopulerView(mangaSlug);
+
 
   try {
     /* ================= LOAD METADATA ================= */
