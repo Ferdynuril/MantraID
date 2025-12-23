@@ -277,7 +277,12 @@ exports.chapter = async (req, res) => {
   let prevUrl = null;
   let nextUrl = null;
 
-  await addPopulerView(mangaSlug);
+  try {
+    await addPopulerView(mangaSlug);
+  } catch (e) {
+    console.error("Popular counter error:", e.message);
+  }
+
 
 
   try {
