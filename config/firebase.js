@@ -6,6 +6,8 @@ if (!admin.apps.length) {
   });
 }
 
-const db = admin.firestore();
+const db = admin.firestore({
+  databaseId: "mantraid",
+});
 
 module.exports = { db, admin };
