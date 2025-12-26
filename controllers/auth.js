@@ -3,7 +3,8 @@
  * ----------------------------------------------------
  * - Authentication (login / logout)
  * - Dashboard data aggregation
- * - Statistics & analytics helpers
+ * - Manga CRUD
+ * - Popular analytics (NEW FORMAT)
  */
 
 const fs = require("fs");
@@ -13,8 +14,8 @@ const bcrypt = require("bcrypt");
 // ====================================================
 // PATH CONSTANTS
 // ====================================================
-const DATA_DIR   = path.join(__dirname, "../data");
-const ADMIN_PATH = path.join(DATA_DIR, "admin.json");
+const DATA_DIR     = path.join(__dirname, "../data");
+const ADMIN_PATH   = path.join(DATA_DIR, "admin.json");
 const LATEST_PATH  = path.join(DATA_DIR, "latest.json");
 const POPULER_PATH = path.join(DATA_DIR, "popular.json");
 const INDEX_PATH   = path.join(DATA_DIR, "index.json");
@@ -22,21 +23,18 @@ const INDEX_PATH   = path.join(DATA_DIR, "index.json");
 // ====================================================
 // UTILITIES
 // ====================================================
-
-/** Read JSON file safely */
 function readJSON(filePath) {
+  if (!fs.existsSync(filePath)) return {};
   return JSON.parse(fs.readFileSync(filePath, "utf8"));
 }
 
-/** Create YYYY-MM-DD string from Date */
-function formatDateKey(date) {
-  return date.toISOString().slice(0, 10);
+function saveJSON(filePath, data) {
+  fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
 }
 
 // ====================================================
-// AUTHENTICATION
+// AUTH
 // ====================================================
-
 exports.showLogin = (req, res) => {
   if (req.session.admin) return res.redirect("/admin");
   res.render("admin-login");
@@ -55,7 +53,6 @@ exports.login = async (req, res) => {
     return res.render("admin-login", { error: "Password salah" });
   }
 
-  // ✅ Login success
   req.session.admin = { username: admin.username };
   res.redirect("/admin");
 };
@@ -67,89 +64,69 @@ exports.logout = (req, res) => {
 // ====================================================
 // DASHBOARD
 // ====================================================
-
 exports.dashboard = (req, res) => {
   try {
-    // ===== LOAD DATA (ONCE) =====
     const latestData  = readJSON(LATEST_PATH);
     const populerData = readJSON(POPULER_PATH);
     const indexData   = readJSON(INDEX_PATH);
 
-    // ===== BUILD META LOOKUP (O(1)) =====
-    const metaMap = buildMetaMap(indexData.manga_list);
+    const metaMap = buildMetaMap(indexData.manga_list || []);
+    const populerMaps = buildPopularMap(populerData);
 
-    // ===== POPULARITY MAPS =====
-    const populerDayMap   = getPopularityByRange(populerData, "day");
-    const populerWeekMap  = getPopularityByRange(populerData, "week");
-    const populerMonthMap = getPopularityByRange(populerData, "month");
-
-    // ===== MERGE MANGA DATA =====
     const mangas = Object.entries(latestData).map(([slug, info]) =>
-      buildMangaObject(slug, info, metaMap, {
-        day: populerDayMap,
-        week: populerWeekMap,
-        month: populerMonthMap
-      })
+      buildMangaObject(slug, info, metaMap, populerMaps)
     );
 
-    // ===== GLOBAL STATISTICS =====
     const totalViews = {
-      day:   getTotalViews(populerData, "day"),
-      week:  getTotalViews(populerData, "week"),
-      month: getTotalViews(populerData, "month"),
-      all:   getTotalViews(populerData, "all")
+      day:   Object.values(populerData).reduce((a, b) => a + (b.day || 0), 0),
+      week:  Object.values(populerData).reduce((a, b) => a + (b.week || 0), 0),
+      month: Object.values(populerData).reduce((a, b) => a + (b.month || 0), 0),
+      all:   Object.values(populerData).reduce((a, b) => a + (b.total || 0), 0)
     };
 
-    const totalManga = countUniqueManga(indexData.manga_list);
-    const viewsTrend = getViewsTrendLastDays(populerData, 7);
-
-    // ===== RENDER =====
     res.render("dashboard", {
       admin: req.session.admin,
       mangas,
       totalViews,
-      totalManga,
-      viewsTrend
+      totalManga: Object.keys(metaMap).length
     });
 
   } catch (err) {
     console.error("Dashboard error:", err);
-    res.status(500).send("Gagal memuat dashboard admin");
+    res.status(500).send("Gagal memuat dashboard");
   }
 };
 
+// ====================================================
+// MANGA LIST
+// ====================================================
 exports.mangaList = (req, res) => {
-    try {
-        // ===== LOAD DATA (ONCE) =====
-        const latestData = readJSON(LATEST_PATH);
-        const populerData = readJSON(POPULER_PATH);
-        const indexData = readJSON(INDEX_PATH);
+  try {
+    const latestData  = readJSON(LATEST_PATH);
+    const populerData = readJSON(POPULER_PATH);
+    const indexData   = readJSON(INDEX_PATH);
 
-        // ===== BUILD META LOOKUP (O(1)) =====
-        const metaMap = buildMetaMap(indexData.manga_list);
-        // ===== POPULARITY MAPS =====
-        const populerDayMap = getPopularityByRange(populerData, "day");
-        const populerWeekMap = getPopularityByRange(populerData, "week");
-        const populerMonthMap = getPopularityByRange(populerData, "month");
-        // ===== MERGE MANGA DATA =====
-        const mangas = Object.entries(latestData).map(([slug, info]) =>
-            buildMangaObject(slug, info, metaMap, {
-                day: populerDayMap,
-                week: populerWeekMap,
-                month: populerMonthMap
-            })
-        );
-        // ===== RENDER =====
-        res.render("list", {
-            admin: req.session.admin,
-            mangas
-        });
-    } catch (err) {
-        console.error("Manga list error:", err);
-        res.status(500).send("Gagal memuat daftar manga");
-    }
+    const metaMap = buildMetaMap(indexData.manga_list || []);
+    const populerMaps = buildPopularMap(populerData);
+
+    const mangas = Object.entries(latestData).map(([slug, info]) =>
+      buildMangaObject(slug, info, metaMap, populerMaps)
+    );
+
+    res.render("list", {
+      admin: req.session.admin,
+      mangas
+    });
+
+  } catch (err) {
+    console.error("List error:", err);
+    res.status(500).send("Gagal memuat list manga");
+  }
 };
 
+// ====================================================
+// CRUD MANGA
+// ====================================================
 exports.createManga = (req, res) => {
   try {
     const data = req.body;
@@ -160,18 +137,16 @@ exports.createManga = (req, res) => {
     const indexData  = readJSON(INDEX_PATH);
     const latestData = readJSON(LATEST_PATH);
 
-    // ===== SLUG =====
     const slug = (data.id || data.title)
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-|-$/g, "");
 
-    // ===== DUPLICATE CHECK =====
     if (indexData.manga_list.some(m => m.id === slug)) {
       return res.status(409).json({ error: "Manga already exists" });
     }
 
-    const manga = {
+    indexData.manga_list.push({
       id: slug,
       project: Boolean(data.project),
       title: data.title,
@@ -187,9 +162,7 @@ exports.createManga = (req, res) => {
       rating: data.rating || "",
       description: data.description || "",
       createdAt: new Date().toISOString()
-    };
-
-    indexData.manga_list.push(manga);
+    });
 
     latestData[slug] = {
       cover: "/img/no-cover.jpg",
@@ -199,14 +172,11 @@ exports.createManga = (req, res) => {
     saveJSON(INDEX_PATH, indexData);
     saveJSON(LATEST_PATH, latestData);
 
-    res.json({ success: true, manga });
+    res.json({ success: true });
   } catch (err) {
-    console.error("Create manga error:", err);
     res.status(500).json({ error: "Create manga failed" });
   }
 };
-
-
 
 exports.updateManga = (req, res) => {
   try {
@@ -244,8 +214,6 @@ exports.updateManga = (req, res) => {
   }
 };
 
-
-
 exports.deleteManga = (req, res) => {
   try {
     const { id } = req.params;
@@ -279,24 +247,27 @@ exports.deleteManga = (req, res) => {
   }
 };
 
-
-
-
-
-
 // ====================================================
-// DATA BUILDERS
+// HELPERS
 // ====================================================
-
-function buildMetaMap(mangaList = []) {
+function buildMetaMap(list = []) {
   const map = {};
-  mangaList.forEach(m => {
-    map[m.id.toLowerCase()] = m;
-  });
+  list.forEach(m => map[m.id] = m);
   return map;
 }
 
-function buildMangaObject(slug, info, metaMap, populerMaps) {
+function buildPopularMap(data = {}) {
+  const map = { day: {}, week: {}, month: {}, total: {} };
+  for (const slug in data) {
+    map.day[slug]   = data[slug].day   || 0;
+    map.week[slug]  = data[slug].week  || 0;
+    map.month[slug] = data[slug].month || 0;
+    map.total[slug] = data[slug].total || 0;
+  }
+  return map;
+}
+
+function buildMangaObject(slug, info, metaMap, populer) {
   const meta = metaMap[slug] || {};
 
   return {
@@ -304,13 +275,13 @@ function buildMangaObject(slug, info, metaMap, populerMaps) {
     id: meta.id || slug,
     title: meta.title || slug.replace(/-/g, " "),
     alternative_title: meta.alternative_title || "",
-    author: meta.author || "-",
-    artist: meta.artist || "-",
+    author: meta.author || "",
+    artist: meta.artist || "",
     genre: meta.genre || [],
     theme: meta.theme || [],
     status: meta.status || "Unknown",
     release_year: meta.release_year || "-",
-    serialization: meta.serialization || "-",
+    serialization: meta.serialization || "",
     project: meta.project || false,
     rating: meta.rating || "-",
     description: meta.description || "",
@@ -318,82 +289,10 @@ function buildMangaObject(slug, info, metaMap, populerMaps) {
     cover: info.cover || "/img/no-cover.jpg",
     latestChapters: info.latestChapters || [],
 
-    populerDay:   populerMaps.day[slug]   || 0,
-    populerWeek:  populerMaps.week[slug]  || 0,
-    populerMonth: populerMaps.month[slug] || 0
+
+    populerDay:   populer.day[slug]   || 0,
+    populerWeek:  populer.week[slug]  || 0,
+    populerMonth: populer.month[slug] || 0,
+    populerTotal: populer.total[slug] || 0
   };
-}
-
-// ====================================================
-// ANALYTICS
-// ====================================================
-
-function getPopularityByRange(populerData, range) {
-  const startDate = getStartDate(range);
-  const result = {};
-
-  for (const dateStr in populerData) {
-    if (startDate && new Date(dateStr) < startDate) continue;
-
-    for (const slug in populerData[dateStr]) {
-      result[slug] = (result[slug] || 0) + Number(populerData[dateStr][slug]);
-    }
-  }
-
-  return result;
-}
-
-function getTotalViews(populerData, range = "all") {
-  const startDate = getStartDate(range);
-  let total = 0;
-
-  for (const dateStr in populerData) {
-    if (startDate && new Date(dateStr) < startDate) continue;
-
-    for (const slug in populerData[dateStr]) {
-      total += Number(populerData[dateStr][slug]) || 0;
-    }
-  }
-
-  return total;
-}
-
-function getViewsTrendLastDays(populerData, days = 7) {
-  const result = [];
-  const today = new Date();
-
-  for (let i = days - 1; i >= 0; i--) {
-    const date = new Date(today);
-    date.setDate(today.getDate() - i);
-
-    const dailyData = populerData[formatDateKey(date)] || {};
-    let total = 0;
-
-    for (const slug in dailyData) {
-      total += Number(dailyData[slug]) || 0;
-    }
-
-    result.push(total);
-  }
-
-  return result;
-}
-
-function countUniqueManga(mangaList = []) {
-  return new Set(mangaList.map(m => m.id.toLowerCase())).size;
-}
-
-function getStartDate(range) {
-  if (range === "all") return null;
-
-  const date = new Date();
-  if (range === "day") date.setDate(date.getDate() - 1);
-  if (range === "week") date.setDate(date.getDate() - 7);
-  if (range === "month") date.setMonth(date.getMonth() - 1);
-
-  return date;
-}
-
-function saveJSON(filePath, data) {
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
 }

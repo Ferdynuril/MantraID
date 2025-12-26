@@ -29,9 +29,9 @@
                     <span>MangaList</span>
                 </a>
 
-                <a href="/anything" class="flex items-center gap-3 px-3 py-2 rounded hover:bg-slate-50 <% if (typeof active !== 'undefined' && active==='anything') { %> bg-slate-100 font-medium <% } %>">
+                <a href="/admin/blog" class="flex items-center gap-3 px-3 py-2 rounded hover:bg-slate-50 <% if (typeof active !== 'undefined' && active==='anything') { %> bg-slate-100 font-medium <% } %>">
                     <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m4 4v-2a2 2 0 00-2-2h-1m-6 6v-5a2 2 0 012-2h3"/></svg>
-                    <span>Anything</span>
+                    <span>Blog</span>
                 </a>
             </nav>
 
@@ -194,6 +194,7 @@ const descriptionInput = document.getElementById('descriptionInput');
 
 
 document.getElementById('btnAdd').onclick = () => {
+  form.reset();
   modalTitle.textContent = 'New Manga';
   mangaIdInput.value = ''; // CREATE MODE
   slugInput.value = '';

@@ -1,32 +1,38 @@
 {
   "tenseinanmin": {
     "day": 1,
-    "week": 1,
-    "month": 1,
-    "total": 1
+    "week": 2,
+    "month": 2,
+    "total": 2
   },
   "watashinokokoro": {
-    "day": 2,
+    "day": 0,
     "week": 2,
     "month": 2,
     "total": 2
   },
   "fromvillainess": {
-    "day": 2,
+    "day": 0,
     "week": 2,
     "month": 2,
     "total": 2
   },
   "isekaishouninskill": {
-    "day": 18,
+    "day": 0,
     "week": 18,
     "month": 18,
     "total": 18
   },
   "nekomimishoujo": {
-    "day": 13,
-    "week": 13,
-    "month": 13,
-    "total": 13
+    "day": 0,
+    "week": 15,
+    "month": 15,
+    "total": 15
+  },
+  "taidanaakuyaku": {
+    "day": 1,
+    "week": 1,
+    "month": 1,
+    "total": 1
   }
 }

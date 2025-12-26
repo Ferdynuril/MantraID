@@ -125,6 +125,43 @@
   });
 </script>
 
+<% if (typeof blogs !== "undefined" && blogs.length > 0) { %>
+<div class="max-w-7xl mx-auto px-4 mb-10">
+  <h2 class="text-2xl font-bold mb-4 border-b-4 border-blue-300 inline-block">
+    Blog & Update
+  </h2>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 mt-4">
+    <% blogs.forEach(b => { %>
+      <a href="/blog/<%= b.id %>" 
+         class="bg-gray-800 rounded-xl overflow-hidden shadow hover:shadow-xl transition group">
+
+        <!-- Thumbnail -->
+
+        <!-- Content -->
+        <div class="p-4">
+          <h3 class="font-semibold text-lg group-hover:text-blue-400 line-clamp-2">
+            <%= b.title %>
+          </h3>
+
+          <p class="text-sm text-gray-400 mt-2 line-clamp-3">
+            <%= b.excerpt %>
+          </p>
+
+          <span class="text-xs text-gray-500 mt-3 block">
+            <%= new Date(b.createdAt).toLocaleDateString("id-ID", {
+              day: "2-digit",
+              month: "long",
+              year: "numeric"
+            }) %>
+          </span>
+        </div>
+
+      </a>
+    <% }) %>
+  </div>
+</div>
+<% } %>
 
 
 <!-- MAIN WRAPPER -->

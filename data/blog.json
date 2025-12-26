@@ -1,0 +1,18 @@
+{
+  "blogs": [
+    {
+      "id": "First",
+      "title": "First Blog",
+      "author": "Ferdynuril",
+      "tags": [
+        "manga",
+        "blog",
+        "info"
+      ],
+      "status": "Published",
+      "content": "Halo, mungkin agak aneh jika tempat baca manga menyediakan blog semacam ini. Tapi tidak apa, ini sebuah ambisi besar untuk membuat ekosistem baca manga yang baik... mungkin? Tapi yah, aku berpikir fungsi dari blog ini hanya sekedar memberikan informasi terkait manga yang aku terjemahkan. Supaya informasi-informasi penting tidak lagi dimasukkan di panel-panel manga. Itu menjengkelkan bukan? apa lagi curhat panjang-panjang tapi di skip juga sama pembaca. Kalau pun ada pembaca baru, pasti pesannya sudah tidak relevan, seperti minta hiatus atau apa sebagainya. Jadi buat blog pertama, tidak banyak fitur yang kutambahkan. Berharap bisa membuat fitur-fitur hebat lainnya...",
+      "createdAt": "2025-12-26T10:28:37.009Z",
+      "updatedAt": "2025-12-26T11:03:02.749Z"
+    }
+  ]
+}

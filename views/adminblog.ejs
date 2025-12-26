@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin Blog</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-100 text-slate-800 min-h-screen">
+
+<div class="flex">
+
+<!-- =============== SIDEBAR =============== -->
+<aside class="w-64 bg-white border-r border-slate-200 min-h-screen p-4 hidden md:block">
+  <h1 class="text-xl font-semibold mb-1">Admin</h1>
+  <p class="text-sm text-slate-500 mb-6">Dashboard panel</p>
+
+  <nav class="space-y-1">
+    <a href="/admin" class="block px-3 py-2 rounded hover:bg-slate-50">Home</a>
+    <a href="/admin/mangalist" class="block px-3 py-2 rounded hover:bg-slate-50">MangaList</a>
+    <a href="/admin/blog" class="block px-3 py-2 rounded bg-slate-100 font-medium">Blog</a>
+  </nav>
+</aside>
+
+<!-- =============== MAIN =============== -->
+<div class="flex-1">
+
+<header class="bg-white border-b p-4">
+  <h2 class="text-lg font-semibold">Blog Manager</h2>
+  <p class="text-sm text-slate-500">Create & manage articles</p>
+</header>
+
+<main class="p-6">
+
+<div class="flex justify-between mb-4">
+  <h3 class="font-semibold">Blog List</h3>
+  <button id="btnAdd" class="px-4 py-2 bg-indigo-600 text-white rounded">
+    + New Blog
+  </button>
+</div>
+
+<div class="bg-white border rounded overflow-x-auto">
+<table class="min-w-full divide-y">
+  <thead class="bg-slate-50">
+    <tr>
+      <th class="px-4 py-3 text-left text-xs">Title</th>
+      <th class="px-4 py-3 text-left text-xs">Author</th>
+      <th class="px-4 py-3 text-left text-xs">Status</th>
+      <th class="px-4 py-3 text-right text-xs">Action</th>
+    </tr>
+  </thead>
+
+  <tbody class="divide-y">
+    <% blogs.forEach(b => { %>
+    <tr>
+      <td class="px-4 py-3">
+        <div class="font-medium"><%= b.title %></div>
+        <div class="text-xs text-slate-400"><%= b.id %></div>
+      </td>
+      <td class="px-4 py-3"><%= b.author %></td>
+      <td class="px-4 py-3"><%= b.status %></td>
+      <td class="px-4 py-3 text-right space-x-2">
+        <button class="btnEdit px-3 py-1 bg-amber-100 text-amber-800 rounded"
+          data-blog='<%- JSON.stringify(b) %>'>
+          Edit
+        </button>
+        <button class="btnDelete px-3 py-1 bg-red-600 text-white rounded"
+          data-id="<%= b.id %>" data-title="<%= b.title %>">
+          Delete
+        </button>
+      </td>
+    </tr>
+    <% }) %>
+  </tbody>
+</table>
+</div>
+
+</main>
+</div>
+</div>
+
+<!-- =============== MODAL =============== -->
+<div id="modal" class="fixed inset-0 bg-black/40 hidden z-50 flex items-center justify-center">
+<div class="bg-white w-full max-w-xl rounded p-6">
+
+<h3 id="modalTitle" class="text-lg font-semibold mb-4">New Blog</h3>
+
+<form id="blogForm" class="space-y-3">
+
+<input type="hidden" id="oldId">
+
+<input id="idInput" placeholder="Slug / ID" class="w-full border px-3 py-2 rounded" required>
+<input id="titleInput" placeholder="Title" class="w-full border px-3 py-2 rounded" required>
+<input id="authorInput" placeholder="Author" class="w-full border px-3 py-2 rounded">
+
+<input id="tagsInput" placeholder="Tags (comma separated)" class="w-full border px-3 py-2 rounded">
+
+<select id="statusInput" class="w-full border px-3 py-2 rounded">
+  <option>Draft</option>
+  <option>Published</option>
+</select>
+
+<textarea id="contentInput" rows="8"
+  placeholder="Blog content..."
+  class="w-full border px-3 py-2 rounded"></textarea>
+
+<div class="flex justify-end gap-2">
+  <button type="button" id="btnCancel" class="border px-4 py-2 rounded">Cancel</button>
+  <button class="bg-indigo-600 text-white px-4 py-2 rounded">Save</button>
+</div>
+
+</form>
+</div>
+</div>
+
+<script>
+const modal = document.getElementById('modal');
+const form = document.getElementById('blogForm');
+
+const oldId = document.getElementById('oldId');
+const idInput = document.getElementById('idInput');
+const titleInput = document.getElementById('titleInput');
+const authorInput = document.getElementById('authorInput');
+const tagsInput = document.getElementById('tagsInput');
+const statusInput = document.getElementById('statusInput');
+const contentInput = document.getElementById('contentInput');
+
+/* NEW */
+btnAdd.onclick = () => {
+  oldId.value = '';
+  form.reset();
+  modal.classList.remove('hidden');
+};
+
+/* EDIT */
+document.querySelectorAll('.btnEdit').forEach(btn => {
+  btn.onclick = () => {
+    const b = JSON.parse(btn.dataset.blog);
+    oldId.value = b.id;
+    idInput.value = b.id;
+    titleInput.value = b.title;
+    authorInput.value = b.author;
+    tagsInput.value = b.tags.join(', ');
+    statusInput.value = b.status;
+    contentInput.value = b.content;
+    modal.classList.remove('hidden');
+  };
+});
+
+/* CANCEL */
+btnCancel.onclick = () => modal.classList.add('hidden');
+
+/* SAVE */
+form.onsubmit = async e => {
+  e.preventDefault();
+
+  const payload = {
+    id: idInput.value,
+    title: titleInput.value,
+    author: authorInput.value,
+    tags: tagsInput.value.split(',').map(t=>t.trim()).filter(Boolean),
+    status: statusInput.value,
+    content: contentInput.value
+  };
+
+  const isEdit = Boolean(oldId.value);
+  const url = isEdit ? `/admin/blog/${oldId.value}` : `/admin/blog`;
+  const method = isEdit ? 'PUT' : 'POST';
+
+  const res = await fetch(url,{
+    method,
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(payload)
+  });
+
+  if(!res.ok){ alert('Failed'); return; }
+  location.reload();
+};
+
+/* DELETE */
+document.querySelectorAll('.btnDelete').forEach(btn=>{
+  btn.onclick=async()=>{
+    if(!confirm(`Delete "${btn.dataset.title}"?`))return;
+    await fetch(`/admin/blog/${btn.dataset.id}`,{method:'DELETE'});
+    location.reload();
+  };
+});
+</script>
+
+</body>
+</html>

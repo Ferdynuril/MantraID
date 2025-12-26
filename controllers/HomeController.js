@@ -5,9 +5,10 @@ const path = require("path");
  * HOME CONTROLLER
  * --------------------------------------------------
  * - Load latest.json
- * - Load index.json (metadata)
- * - Load popular.json (views)
- * - Merge + sort (latest / popular)
+ * - Load index.json
+ * - Load popular.json
+ * - Load blog.json
+ * - Merge + sort
  */
 
 exports.index = async (req, res) => {
@@ -17,13 +18,15 @@ exports.index = async (req, res) => {
     const latestPath  = path.join(DATA_DIR, "latest.json");
     const indexPath   = path.join(DATA_DIR, "index.json");
     const popularPath = path.join(DATA_DIR, "popular.json");
+    const blogPath    = path.join(DATA_DIR, "blog.json");
 
     if (!fs.existsSync(latestPath) || !fs.existsSync(indexPath)) {
       return res.render("home", {
         latest: [],
         popularDay: [],
         popularWeek: [],
-        popularMonth: []
+        popularMonth: [],
+        blogs: []
       });
     }
 
@@ -34,6 +37,18 @@ exports.index = async (req, res) => {
       ? JSON.parse(fs.readFileSync(popularPath, "utf8"))
       : {};
 
+    // ===== LOAD BLOG (FIX) =====
+    const blogs = fs.existsSync(blogPath)
+      ? (() => {
+          const raw = JSON.parse(fs.readFileSync(blogPath, "utf8"));
+          const list = Array.isArray(raw.blogs) ? raw.blogs : [];
+
+          return list
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            .slice(0, 4);
+        })()
+      : [];
+
     // ===== META MAP =====
     const metaMap = {};
     indexData.manga_list.forEach(m => {
@@ -43,7 +58,7 @@ exports.index = async (req, res) => {
     // ===== BUILD MANGA LIST =====
     const mangas = Object.entries(latestData).map(([slug, info]) => {
       const meta = metaMap[slug] || {};
-      const pop = popularData[slug] || { day: 0, week: 0, month: 0, total: 0 };
+      const pop = popularData[slug] || { day: 0, week: 0, month: 0 };
 
       return {
         slug,
@@ -80,7 +95,8 @@ exports.index = async (req, res) => {
       latest,
       popularDay: day,
       popularWeek: week,
-      popularMonth: month
+      popularMonth: month,
+      blogs
     });
 
   } catch (err) {
@@ -88,6 +104,39 @@ exports.index = async (req, res) => {
     res.status(500).send("Error memuat home");
   }
 };
+
+// ===================================================
+// BLOG DETAIL
+// URL: /blog/:id
+// ===================================================
+exports.blogDetail = (req, res) => {
+  try {
+    const blogPath = path.join(__dirname, "../data/blog.json");
+
+    if (!fs.existsSync(blogPath)) {
+      return res.status(404).send("Blog tidak ditemukan");
+    }
+
+    const raw = JSON.parse(fs.readFileSync(blogPath, "utf8"));
+
+    // pastikan array
+    const blogs = Array.isArray(raw.blogs) ? raw.blogs : [];
+
+    // karena URL: /blog/:id
+    const blog = blogs.find(b => String(b.id) === String(req.params.id));
+
+    if (!blog) {
+      return res.status(404).send("Blog tidak ditemukan");
+    }
+
+    res.render("blog-read", { blog });
+
+  } catch (err) {
+    console.error("BLOG DETAIL ERROR:", err);
+    res.status(500).send("Terjadi kesalahan saat memuat blog");
+  }
+};
+
 
 // ===================================================
 // HELPERS
@@ -115,7 +164,3 @@ function timeAgo(dateString) {
   if (d < 365) return `${Math.floor(d / 30)} bulan lalu`;
   return `${Math.floor(d / 365)} tahun lalu`;
 }
-
-exports.about = (req, res) => {
-  res.send("Ini halaman About (controller)");
-};

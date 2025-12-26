@@ -7,7 +7,7 @@ const HomeController = require('../controllers/HomeController');
 
 
 router.get('/', HomeController.index);
-router.get('/about', HomeController.about);
+router.get('/blog/:id', HomeController.blogDetail);
 
 
 
