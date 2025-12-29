@@ -4,7 +4,8 @@ const port = process.env.PORT || 8080;
 const path = require('path');
 
 const session = require("express-session");
-const syncFirestoreToLocal = require("./config/loadFirestore"); // <-- TAMBAHAN
+const syncFirestoreToLocal = require("./config/loadFirestore");
+const antiBot = require("./middle/antiBot");
 
 app.use(session({
   name: "mantraid.sid",
@@ -27,6 +28,8 @@ app.set('views', './views');
 app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+app.use(antiBot);
 
 // Get URL + session
 app.use((req, res, next) => {
