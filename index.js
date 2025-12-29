@@ -1,9 +1,10 @@
 const express = require('express');
 const app = express();
-const port = process.env.PORT || 8080
+const port = process.env.PORT || 8080;
 const path = require('path');
 
 const session = require("express-session");
+const syncFirestoreToLocal = require("./config/loadFirestore"); // <-- TAMBAHAN
 
 app.use(session({
   name: "mantraid.sid",
@@ -18,11 +19,7 @@ app.use(session({
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-// View engine setup
-
-
-
-
+// View engine
 app.set('view engine', 'ejs');
 app.set('views', './views');
 
@@ -31,7 +28,7 @@ app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Get Url
+// Get URL + session
 app.use((req, res, next) => {
   res.locals.currentPath = req.path;
   res.locals.admin = req.session.admin || null;
@@ -45,14 +42,9 @@ const mangaRoutes = require('./routes/manga');
 const authRoutes = require('./routes/auth');
 
 app.use('/admin', authRoutes);
-
 app.use('/', homeRoutes);
 app.use('/image', imageRoutes);
 app.use('/Manga', mangaRoutes);
-
-
-
-
 
 // 404 Handler
 app.use((req, res) => {
@@ -71,9 +63,21 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start server
-app.listen(port, () => {
-  console.log(`🚀 Server running at http://localhost:${port}`);
-  console.log(`📁 Views: ./views/`);
-  console.log(`🎨 Tailwind CSS: ./public/css/output.css`);
-});
+// ===================================================
+// START SERVER *SETELAH* SYNC FIRESTORE
+// ===================================================
+(async () => {
+  try {
+    console.log("🔄 Syncing Firestore to local JSON...");
+    await syncFirestoreToLocal();
+    console.log("✅ Firestore sync completed");
+  } catch (e) {
+    console.error("❌ Error syncing Firestore:", e);
+  }
+
+  app.listen(port, () => {
+    console.log(`🚀 Server running at port ${port}`);
+    console.log(`📁 Views: ./views/`);
+    console.log(`🎨 Tailwind CSS: ./public/css/output.css`);
+  });
+})();

@@ -10,6 +10,8 @@
 const fs = require("fs");
 const path = require("path");
 const bcrypt = require("bcrypt");
+const { db } = require("../config/firebase");
+
 
 // ====================================================
 // PATH CONSTANTS
@@ -127,28 +129,22 @@ exports.mangaList = (req, res) => {
 // ====================================================
 // CRUD MANGA
 // ====================================================
-exports.createManga = (req, res) => {
+exports.createManga = async (req, res) => {
   try {
     const data = req.body;
-    if (!data.title) {
-      return res.status(400).json({ error: "Title is required" });
-    }
-
-    const indexData  = readJSON(INDEX_PATH);
-    const latestData = readJSON(LATEST_PATH);
 
     const slug = (data.id || data.title)
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-|-$/g, "");
 
-    if (indexData.manga_list.some(m => m.id === slug)) {
+    const ref = db.collection("manga_index").doc(slug);
+    if ((await ref.get()).exists) {
       return res.status(409).json({ error: "Manga already exists" });
     }
 
-    indexData.manga_list.push({
+    const mangaMeta = {
       id: slug,
-      project: Boolean(data.project),
       title: data.title,
       alternative_title: data.alternative_title || "",
       author: data.author || "",
@@ -158,94 +154,83 @@ exports.createManga = (req, res) => {
       status: data.status || "Ongoing",
       release_year: Number(data.release_year) || new Date().getFullYear(),
       serialization: data.serialization || "",
-      post: "Ferdynuril",
+      project: Boolean(data.project),
       rating: data.rating || "",
       description: data.description || "",
+      post: "Ferdynuril",
       createdAt: new Date().toISOString()
-    });
+    };
 
-    latestData[slug] = {
+    await ref.set(mangaMeta);
+
+    await db.collection("manga_latest").doc(slug).set({
       cover: "/img/no-cover.jpg",
       latestChapters: []
-    };
+    });
+
+    // update JSON lokal
+    const indexData = readJSON(INDEX_PATH);
+    const latestData = readJSON(LATEST_PATH);
+
+    indexData.manga_list.push(mangaMeta);
+    latestData[slug] = { cover: "/img/no-cover.jpg", latestChapters: [] };
 
     saveJSON(INDEX_PATH, indexData);
     saveJSON(LATEST_PATH, latestData);
 
     res.json({ success: true });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Create manga failed" });
   }
 };
 
-exports.updateManga = (req, res) => {
-  try {
-    const { id } = req.params;
-    const data = req.body;
 
-    const indexData = readJSON(INDEX_PATH);
-    const manga = indexData.manga_list.find(m => m.id === id);
+exports.updateManga = async (req, res) => {
+  const { id } = req.params;
+  const data = req.body;
 
-    if (!manga) {
-      return res.status(404).json({ error: "Manga not found" });
-    }
-
-    Object.assign(manga, {
-      title: data.title ?? manga.title,
-      alternative_title: data.alternative_title ?? manga.alternative_title,
-      author: data.author ?? manga.author,
-      artist: data.artist ?? manga.artist,
-      genre: Array.isArray(data.genre) ? data.genre : manga.genre,
-      theme: Array.isArray(data.theme) ? data.theme : manga.theme,
-      status: data.status ?? manga.status,
-      release_year: data.release_year ? Number(data.release_year) : manga.release_year,
-      serialization: data.serialization ?? manga.serialization,
-      rating: data.rating ?? manga.rating,
-      description: data.description ?? manga.description,
-      project: data.project !== undefined ? Boolean(data.project) : manga.project
-    });
-
-    saveJSON(INDEX_PATH, indexData);
-
-    res.json({ success: true, manga });
-  } catch (err) {
-    console.error("Update manga error:", err);
-    res.status(500).json({ error: "Update manga failed" });
+  const ref = db.collection("manga_index").doc(id);
+  if (!(await ref.get()).exists) {
+    return res.status(404).json({ error: "Manga not found" });
   }
+
+  await ref.update(data);
+
+  const indexData = readJSON(INDEX_PATH);
+  const manga = indexData.manga_list.find(m => m.id === id);
+  Object.assign(manga, data);
+
+  saveJSON(INDEX_PATH, indexData);
+
+  res.json({ success: true });
 };
 
-exports.deleteManga = (req, res) => {
-  try {
-    const { id } = req.params;
 
-    const indexData = readJSON(INDEX_PATH);
-    const latestData = readJSON(LATEST_PATH);
-    const populerData = fs.existsSync(POPULER_PATH)
-      ? readJSON(POPULER_PATH)
-      : {};
+exports.deleteManga = async (req, res) => {
+  const { id } = req.params;
 
-    const exists = indexData.manga_list.some(m => m.id === id);
-    if (!exists) {
-      return res.status(404).json({ error: "Manga not found" });
-    }
+  await Promise.all([
+    db.collection("manga_index").doc(id).delete(),
+    db.collection("manga_latest").doc(id).delete(),
+    db.collection("manga_popular").doc(id).delete()
+  ]);
 
-    indexData.manga_list = indexData.manga_list.filter(m => m.id !== id);
-    delete latestData[id];
+  const indexData = readJSON(INDEX_PATH);
+  const latestData = readJSON(LATEST_PATH);
+  const populerData = readJSON(POPULER_PATH);
 
-    for (const date in populerData) {
-      delete populerData[date]?.[id];
-    }
+  indexData.manga_list = indexData.manga_list.filter(m => m.id !== id);
+  delete latestData[id];
+  delete populerData[id];
 
-    saveJSON(INDEX_PATH, indexData);
-    saveJSON(LATEST_PATH, latestData);
-    saveJSON(POPULER_PATH, populerData);
+  saveJSON(INDEX_PATH, indexData);
+  saveJSON(LATEST_PATH, latestData);
+  saveJSON(POPULER_PATH, populerData);
 
-    res.json({ success: true });
-  } catch (err) {
-    console.error("Delete manga error:", err);
-    res.status(500).json({ error: "Delete manga failed" });
-  }
+  res.json({ success: true });
 };
+
 
 // ====================================================
 // HELPERS
