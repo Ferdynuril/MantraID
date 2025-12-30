@@ -1,15 +1,15 @@
-const express = require('express');
+const express = require("express");
 const app = express();
 const port = process.env.PORT || 8080;
-const path = require('path');
+const path = require("path");
 
 const session = require("express-session");
+
 const syncFirestoreToLocal = require("./config/loadFirestore");
+const generateSitemap = require("./config/generateSitemap"); // 🗺️ TAMBAHAN
 const antiBot = require("./middle/antiBot");
 
-
-
-
+// ================= SESSION =================
 app.use(session({
   name: "mantraid.sid",
   secret: "mantraid-super-secret",
@@ -21,73 +21,77 @@ app.use(session({
   }
 }));
 
-app.use(express.static(path.join(__dirname, 'public')));
+// ================= STATIC =================
+// ⚠️ sitemap.xml di-serve langsung dari public (AMAN SEO)
+app.use(express.static(path.join(__dirname, "public")));
 
-// View engine
-app.set('view engine', 'ejs');
-app.set('views', './views');
+// ================= VIEW ENGINE =================
+app.set("view engine", "ejs");
+app.set("views", "./views");
 
-const sitemapRoutes = require("./routes/sitemap");
-app.use("/", sitemapRoutes);
-
-// Middleware
-app.use(express.static('public'));
+// ================= BODY PARSER =================
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+// ================= ANTI BOT =================
+// ⚠️ setelah static → bot bisa ambil sitemap & assets
 app.use(antiBot);
 
-// Get URL + session
+// ================= GLOBAL LOCALS =================
 app.use((req, res, next) => {
   res.locals.currentPath = req.path;
   res.locals.admin = req.session.admin || null;
   next();
 });
 
-// Routes
-const homeRoutes = require('./routes/home');
-const imageRoutes = require('./routes/image');
-const mangaRoutes = require('./routes/manga');
-const authRoutes = require('./routes/auth');
+// ================= ROUTES =================
+const homeRoutes = require("./routes/home");
+const imageRoutes = require("./routes/image");
+const mangaRoutes = require("./routes/manga");
+const authRoutes = require("./routes/auth");
 
+app.use("/admin", authRoutes);
+app.use("/", homeRoutes);
+app.use("/image", imageRoutes);
+app.use("/Manga", mangaRoutes);
 
-app.use('/admin', authRoutes);
-app.use('/', homeRoutes);
-app.use('/image', imageRoutes);
-app.use('/Manga', mangaRoutes);
-
-// 404 Handler
+// ================= 404 =================
 app.use((req, res) => {
-  res.status(404).render('404', { 
-    title: 'Page Not Found',
-    message: 'The page you are looking for does not exist.'
+  res.status(404).render("404", {
+    title: "Page Not Found",
+    message: "The page you are looking for does not exist."
   });
 });
 
-// Error handler
+// ================= ERROR =================
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).render('error', {
-    title: 'Server Error',
-    message: 'Something went wrong!'
+  res.status(500).render("error", {
+    title: "Server Error",
+    message: "Something went wrong!"
   });
 });
 
 // ===================================================
-// START SERVER *SETELAH* SYNC FIRESTORE
+// START SERVER (INIT TASKS)
 // ===================================================
 (async () => {
   try {
     console.log("🔄 Syncing Firestore to local JSON...");
     await syncFirestoreToLocal();
     console.log("✅ Firestore sync completed");
+
+    console.log("🗺 Generating sitemap.xml...");
+    await generateSitemap();
+    console.log("✅ Sitemap generated");
+
   } catch (e) {
-    console.error("❌ Error syncing Firestore:", e);
+    console.error("❌ Startup error:", e);
   }
 
   app.listen(port, () => {
     console.log(`🚀 Server running at port ${port}`);
-    console.log(`📁 Views: ./views/`);
-    console.log(`🎨 Tailwind CSS: ./public/css/output.css`);
+    console.log(`🌍 https://mantraid.my.id`);
+    console.log(`🗺 Sitemap: /sitemap.xml`);
   });
 })();
