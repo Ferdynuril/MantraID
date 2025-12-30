@@ -227,8 +227,27 @@ exports.list = async (req, res) => {
     }
 
     const totalMangas = mangas.length;
+    const query = req.query || {};
+    const queryString = Object.keys(query).length
+      ? "?" + new URLSearchParams(query).toString()
+      : "";
 
-    res.render("mangalist", { mangas, totalMangas, TotalGenre, TotalTheme, TotalStatus, q });
+
+    res.render("mangalist", {
+    mangas,
+    totalMangas,
+    TotalGenre,
+    TotalTheme,
+    TotalStatus,
+
+    q: req.query.q || "",
+    genre: req.query.genre || "",
+    theme: req.query.theme || "",
+    status: req.query.status || "",
+    project: req.query.project || "",
+    queryString
+  });
+
   } catch (err) {
     console.error("List manga error:", err);
     res.status(500).send("Gagal memuat daftar manga");

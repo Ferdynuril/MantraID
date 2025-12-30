@@ -1,141 +1,50 @@
 {
   "manga_list": [
     {
-      "id": "isekaishouninskill",
-      "project": true,
-      "title": "Isekai Shounin Skill wo Kushi Shite, Yuuyuu Jiteki na Okanemochi Slow Life wo Okurimasu",
-      "alternative_title": "Isekai Merchant: Living a Rich Slow Life with <Isekai Travel>",
-      "author": "Aoba",
-      "artist": "Hamo",
-      "genre": [
-        "Comedy",
-        "Drama",
-        "Fantasy",
-        "Isekai",
-        "Slice of Life"
-      ],
-      "theme": [
-        "Adaptation",
-        "Magic",
-        "Reincarnation"
-      ],
-      "status": "Ongoing",
-      "release_year": 2024,
-      "serialization": "Gaugau Monster",
-      "post": "Ferdynuril",
-      "rating": "8.13",
-      "description": "Aku satu-satunya yang bisa menggunakan skill unik Perjalanan Antar Dunia (Moon Gate), dan aku akan menjalani kehidupan santai sebagai orang kaya!\nSetelah bereinkarnasi ke dunia lain, sang protagonis, Allen, menyadari bahwa ia memiliki skill unik Perjalanan Antar Dunia (Moon Gate) yang hanya bisa digunakan olehnya. Dengan kekuatan itu, Allen mulai bepergian antara Jepang dan dunia lain, menjual berbagai barang kepada penduduk dunia lain yang haus hiburan, serta kepada para transmigran dan reinkarnator, untuk mendapatkan keuntungan. Seiring waktu, ia bertemu dengan putri dari perusahaan besar, seorang putri kerajaan dari dunia lain, dan bahkan mendapatkan seorang budak elf, menikmati kehidupan di dunia lain sepenuhnya...!! "
-    },
-    {
-      "id": "tenseinanmin",
-      "project": true,
-      "title": "Tensei Nanmin Shoujo wa Shimin-ken wo 0 Kara Mezashite Hatarakimasu",
-      "alternative_title": "The Reincarnated Refugee Girl Works Hard to Gain Citizenship from Zero",
-      "author": "Torisuke",
-      "artist": "Chirorirura",
-      "genre": [
-        "Adventure",
-        "Fantasy",
-        "Isekai"
-      ],
-      "theme": [
-        "Adaptation",
-        "Cooking",
-        "Magic"
-      ],
-      "status": "Ongoing",
-      "release_year": 2025,
-      "serialization": "Comic Corona",
-      "post": "Ferdynuril",
-      "rating": "8.25",
-      "description": "Lill, yang bereinkarnasi di pemukiman pengungsi, hari ini kembali merasa lapar. Ditambah lagi, karena orang tuanya yang tidak bekerja, ia dikucilkan dan hampir diusir!?\nUntuk mempertahankan tempat tinggalnya, ia berusaha mendapatkan kepercayaan penduduk dengan membantu mereka setiap hari. Usaha keras gadis kecil itu perlahan mulai diakui oleh orang-orang di sekitarnya.\nSuatu hari, ia ingin makan makanan hangat sampai kenyang! Dengan semangat itu, ia mengetahui bahwa bahkan seorang pengungsi bisa tinggal di kota jika menjadi petualang peringkat B—!?\nTujuannya adalah keluar dari kehidupan sebagai pengungsi! Kisah fantasi petualangan santai tentang gadis yang bereinkarnasi dan berjuang dengan tekun!! "
-    },
-    {
-      "id": "taidanaakuyaku",
-      "project": false,
-      "title": "Taidana Akuyaku Kizoku no Ore ni, Konyaku Hakisareta Akuyaku Reijo ga Totsuidara Saikyo no Fufu ni Narimashita ",
-      "alternative_title": "The Lazy Villainous Noble Married the Villainous Young Lady and Became the Most Fearsome Couple",
-      "author": "Mesopo Tamia",
-      "artist": "Tensui",
-      "genre": [
-        "Drama",
-        "Fantasy",
-        "Isekai",
-        "Romance",
-        "Shounen"
-      ],
-      "theme": [
-        "Adaptation",
-        "Magic",
-        "Reincarnation",
-        "Villainess"
-      ],
-      "status": "Ongoing",
-      "release_year": 2024,
-      "serialization": "Comic CORONA",
-      "post": "Ferdynuril",
-      "rating": "8.40",
-      "description": "Alban terlahir kembali sebagai bangsawan jahat dalam sebuah novel. Demi menghindari nasib buruk, ia mulai berlatih sihir dan pedang. Namun segalanya berubah saat ia dijodohkan dengan Leticia—gadis bangsawan yang dikenal lewat rumor buruk. Ternyata Leticia justru sangat murni dan menggemaskan, membuat Alban lupa akan takdirnya dan bertekad membalas dendam pada dalang di balik fitnah istrinya. Bersama Leticia, mereka memanfaatkan reputasi jahat mereka untuk mengungkap kebenaran dan melindungi cinta yang tumbuh di antara mereka. "
-    },
-    {
       "id": "fromvillainess",
-      "project": false,
-      "title": "From Villainess to Healer: I Know the Cheat to Change My Fate",
-      "alternative_title": "Kaifukushoku no Akuyaku Reijou",
-      "author": "Katamura Namura, Puni-Chan",
       "artist": "Katamura Namura",
-      "genre": [
-        "Adventure",
-        "Comedy",
-        "Fantasy",
-        "Isekai",
-        "Romance",
-        "Slice of Life"
-      ],
+      "migratedAt": "2025-12-29T12:28:01.193Z",
+      "title": "From Villainess to Healer: I Know the Cheat to Change My Fate",
+      "author": "Katamura Namura, Puni-Chan",
+      "alternative_title": "Kaifukushoku no Akuyaku Reijou",
+      "serialization": "Flos Comic",
+      "post": "Ferdynuril",
+      "rating": "8.18",
       "theme": [
         "Reincarnation",
         "Video Games",
         "Villainess",
         "Virtual Reality"
       ],
+      "description": "Charlotte Cocoriara, seorang villainess yang ditolak oleh sang pangeran karena pekerjaannya sebagai Dark Mage, diam-diam memiliki ingatan dari kehidupan sebelumnya sebagai gamer MMORPG. Berbekal pengetahuan rahasia, ia pergi ke Tanah Suci Erenzi dan berhasil mengubah job-nya menjadi Healer—sesuatu yang dianggap mustahil. Tapi Charlotte tak berniat kembali. Ia memilih menjalani hidup penuh petualangan dan kebebasan. ",
       "status": "Ongoing",
-      "release_year": 2022,
-      "serialization": "Flos Comic",
-      "post": "Ferdynuril",
-      "rating": "8.18",
-      "description": "Charlotte Cocoriara, seorang villainess yang ditolak oleh sang pangeran karena pekerjaannya sebagai Dark Mage, diam-diam memiliki ingatan dari kehidupan sebelumnya sebagai gamer MMORPG. Berbekal pengetahuan rahasia, ia pergi ke Tanah Suci Erenzi dan berhasil mengubah job-nya menjadi Healer—sesuatu yang dianggap mustahil. Tapi Charlotte tak berniat kembali. Ia memilih menjalani hidup penuh petualangan dan kebebasan. "
-    },
-    {
-      "id": "watashinokokoro",
-      "project": false,
-      "title": "Watashi no Kokoro wa Oji-san de Aru",
-      "alternative_title": "This Alluring Dark Elf has the Heart of a Middle-Aged Man!",
-      "author": "Shimano Yuuhi",
-      "artist": "Utsugi",
       "genre": [
-        "Action",
         "Adventure",
+        "Comedy",
         "Fantasy",
-        "Isekai"
+        "Isekai",
+        "Romance",
+        "Slice of Life"
       ],
-      "theme": [
-        "Adaptation",
-        "Genderswap"
-      ],
-      "status": "Ongoing",
-      "release_year": 2024,
-      "serialization": "Comic Pash!",
-      "post": "Ferdynuril",
-      "rating": "8.74",
-      "description": "Haruka, pria kesepian tanpa teman atau keluarga, tiba-tiba terbangun dalam tubuh seorang dark elf cantik dan penuh pesona. Dunia fantasi yang luar biasa terbuka di hadapannya, tapi satu hal menghalangi: ia tak tahu cara bersosialisasi. Meski canggung dan penuh keraguan, Haruka kini memiliki tubuh kuat dan mana tak terbatas—dan ia bertekad untuk menjalani hidup barunya sepenuhnya. Dalam perjalanan penuh kehangatan, ia mulai membentuk persahabatan dan menemukan arti hidup yang sesungguhnya. "
+      "project": false,
+      "release_year": 2022
     },
     {
       "id": "fullautobuff",
-      "project": true,
-      "title": "Ore no \"Full Auto Buff\" de Nakamatachi ga Sekai Saikyou ~Soko ni Iru Dake Mujikaku Musou~",
+      "description": "Slad, satu-satunya individu di dunia yang memiliki dua skill unik: \"Full Auto Buff\" dan \"Full Auto Debuff\". Meskipun kemampuannya luar biasa, ia dianggap sebagai pengganggu oleh sang pahlawan dan akhirnya dikeluarkan dari party mereka. Slad pun memutuskan untuk menjalani kehidupan petualang yang lebih santai bersama Echika, seorang gadis elf. Namun, tanpa kehadirannya, party sang pahlawan mulai mengalami kesulitan besar, hingga dunia berada di ambang kehancuran. ",
       "alternative_title": "My \"Fully Automatic Buff\" Made My Friends the Strongest in the World",
+      "release_year": 2024,
+      "post": "Ferdynuril",
+      "serialization": "Dengeki Comic Regulus",
+      "status": "Dropped",
       "author": "epina",
+      "theme": [
+        "Harem",
+        "Magic"
+      ],
       "artist": "IpuruT, Katakura Hibiki",
+      "title": "Ore no \"Full Auto Buff\" de Nakamatachi ga Sekai Saikyou ~Soko ni Iru Dake Mujikaku Musou~",
+      "migratedAt": "2025-12-29T12:28:01.194Z",
       "genre": [
         "Action",
         "Adventure",
@@ -143,63 +52,162 @@
         "Fantasy",
         "Romance"
       ],
-      "theme": [
-        "Harem",
-        "Magic"
-      ],
-      "status": "Dropped",
-      "release_year": 2024,
-      "serialization": "Dengeki Comic Regulus",
-      "post": "Ferdynuril",
-      "rating": "7.23",
-      "description": "Slad, satu-satunya individu di dunia yang memiliki dua skill unik: \"Full Auto Buff\" dan \"Full Auto Debuff\". Meskipun kemampuannya luar biasa, ia dianggap sebagai pengganggu oleh sang pahlawan dan akhirnya dikeluarkan dari party mereka. Slad pun memutuskan untuk menjalani kehidupan petualang yang lebih santai bersama Echika, seorang gadis elf. Namun, tanpa kehadirannya, party sang pahlawan mulai mengalami kesulitan besar, hingga dunia berada di ambang kehancuran. "
+      "project": true,
+      "rating": "7.23"
     },
     {
-      "id": "watashikumona",
+      "id": "isekaishouninskill",
+      "theme": [
+        "Adaptation",
+        "Magic",
+        "Reincarnation"
+      ],
+      "author": "Aoba",
+      "artist": "Hamo",
+      "description": "Aku satu-satunya yang bisa menggunakan skill unik Perjalanan Antar Dunia (Moon Gate), dan aku akan menjalani kehidupan santai sebagai orang kaya!\nSetelah bereinkarnasi ke dunia lain, sang protagonis, Allen, menyadari bahwa ia memiliki skill unik Perjalanan Antar Dunia (Moon Gate) yang hanya bisa digunakan olehnya. Dengan kekuatan itu, Allen mulai bepergian antara Jepang dan dunia lain, menjual berbagai barang kepada penduduk dunia lain yang haus hiburan, serta kepada para transmigran dan reinkarnator, untuk mendapatkan keuntungan. Seiring waktu, ia bertemu dengan putri dari perusahaan besar, seorang putri kerajaan dari dunia lain, dan bahkan mendapatkan seorang budak elf, menikmati kehidupan di dunia lain sepenuhnya...!! ",
+      "alternative_title": "Isekai Merchant: Living a Rich Slow Life with <Isekai Travel>",
+      "title": "Isekai Shounin Skill wo Kushi Shite, Yuuyuu Jiteki na Okanemochi Slow Life wo Okurimasu",
+      "rating": "8.13",
       "project": true,
-      "title": "Watashi, Kumo na Monster wo Tame Shitanode, Spider Silk de Saiho wo Ganbarimasu!",
-      "alternative_title": "I've Tamed a Spider Monster, So I'm Going to Try My Best at Sewing with Spider Silk!",
-      "author": "Akisake",
-      "artist": "Sanneko",
       "genre": [
+        "Comedy",
+        "Drama",
         "Fantasy",
         "Isekai",
         "Slice of Life"
       ],
-      "theme": [
-        "Monsters",
-        "Adaptation"
-      ],
+      "serialization": "Gaugau Monster",
       "status": "Ongoing",
-      "release_year": 2025,
-      "serialization": "Dra-Dra Flat b",
       "post": "Ferdynuril",
-      "rating": "8.07",
-      "description": "Kisahnya mengikuti Lily, seorang gadis yang meninggal karena sakit dan kemudian mendapatkan berkah dari seorang dewi, memungkinkan dirinya untuk bereinkarnasi di dunia lain dengan tubuh yang sehat serta kemampuan \"Magic Sewing\". Dalam perjalanan barunya, Lily bertemu dengan Tarato, seekor monster laba-laba raksasa yang dapat menghasilkan benang langka. Setelah menjinakkannya, Lily mulai memanfaatkan benang tersebut untuk menciptakan pakaian berkualitas tinggi, yang akhirnya menarik perhatian banyak orang. "
+      "release_year": 2024,
+      "migratedAt": "2025-12-29T12:28:01.187Z"
     },
     {
       "id": "nekomimishoujo",
-      "project": true,
-      "title": "Nekomimi Shoujo wa Mori de Slow Life wo Okuritai ~Mofumofu wa Shomou Shimashita ga, Seijo to ka Ouji-sama to ka wa Chuumongai desu~",
-      "alternative_title": "The Cat-Eared Girl Wants to Live a Slow Life in the Forest: I Wanted Something Fluffy, but I didn't Ask for a Saintess or a Prince",
-      "author": "Yocco",
       "artist": "Higashi 385",
+      "title": "Nekomimi Shoujo wa Mori de Slow Life wo Okuritai ~Mofumofu wa Shomou Shimashita ga, Seijo to ka Ouji-sama to ka wa Chuumongai desu~",
+      "rating": "8.35",
+      "migratedAt": "2025-12-29T12:28:01.196Z",
+      "alternative_title": "The Cat-Eared Girl Wants to Live a Slow Life in the Forest: I Wanted Something Fluffy, but I didn't Ask for a Saintess or a Prince",
+      "release_year": 2024,
+      "author": "Yocco",
       "genre": [
         "Comedy",
         "Fantasy",
         "Isekai",
         "Slice of Life"
       ],
+      "post": "Ferdynuril",
+      "description": "Menuju kehidupan santai yang penuh kehangatan di atelier hutan!\nSuatu hari, Chise, seorang pekerja kantoran, meninggal saat mencoba melindungi seekor kucing. Namun, karena perbuatan baiknya, ia diberikan kesempatan oleh dewa untuk bereinkarnasi di dunia lain! Terlahir kembali sebagai gadis dengan telinga kucing, Chise memiliki kemampuan menjinakkan makhluk, memanggil roh, serta pengetahuan dalam pembuatan ramuan. Dengan itu, ia mulai dikelilingi oleh makhluk-makhluk berbulu yang menggemaskan... Sebuah kisah kehidupan santai yang manis dan penuh kebahagiaan! ",
       "theme": [
         "Adaptation",
         "Monster Girls"
       ],
       "status": "Ongoing",
-      "release_year": 2024,
       "serialization": "Gamma Plus",
+      "project": true
+    },
+    {
+      "id": "taidanaakuyaku",
+      "alternative_title": "The Lazy Villainous Noble Married the Villainous Young Lady and Became the Most Fearsome Couple",
+      "migratedAt": "2025-12-29T12:28:01.192Z",
+      "release_year": 2024,
+      "theme": [
+        "Adaptation",
+        "Magic",
+        "Reincarnation",
+        "Villainess"
+      ],
+      "author": "Mesopo Tamia",
+      "title": "Taidana Akuyaku Kizoku no Ore ni, Konyaku Hakisareta Akuyaku Reijo ga Totsuidara Saikyo no Fufu ni Narimashita ",
+      "serialization": "Comic CORONA",
+      "description": "Alban terlahir kembali sebagai bangsawan jahat dalam sebuah novel. Demi menghindari nasib buruk, ia mulai berlatih sihir dan pedang. Namun segalanya berubah saat ia dijodohkan dengan Leticia—gadis bangsawan yang dikenal lewat rumor buruk. Ternyata Leticia justru sangat murni dan menggemaskan, membuat Alban lupa akan takdirnya dan bertekad membalas dendam pada dalang di balik fitnah istrinya. Bersama Leticia, mereka memanfaatkan reputasi jahat mereka untuk mengungkap kebenaran dan melindungi cinta yang tumbuh di antara mereka. ",
+      "status": "Ongoing",
+      "genre": [
+        "Drama",
+        "Fantasy",
+        "Isekai",
+        "Romance",
+        "Shounen"
+      ],
+      "artist": "Tensui",
+      "project": false,
       "post": "Ferdynuril",
-      "rating": "8.35",
-      "description": "Menuju kehidupan santai yang penuh kehangatan di atelier hutan!\nSuatu hari, Chise, seorang pekerja kantoran, meninggal saat mencoba melindungi seekor kucing. Namun, karena perbuatan baiknya, ia diberikan kesempatan oleh dewa untuk bereinkarnasi di dunia lain! Terlahir kembali sebagai gadis dengan telinga kucing, Chise memiliki kemampuan menjinakkan makhluk, memanggil roh, serta pengetahuan dalam pembuatan ramuan. Dengan itu, ia mulai dikelilingi oleh makhluk-makhluk berbulu yang menggemaskan... Sebuah kisah kehidupan santai yang manis dan penuh kebahagiaan! "
+      "rating": "8.40"
+    },
+    {
+      "id": "tenseinanmin",
+      "status": "Ongoing",
+      "project": true,
+      "migratedAt": "2025-12-29T12:28:01.191Z",
+      "alternative_title": "The Reincarnated Refugee Girl Works Hard to Gain Citizenship from Zero",
+      "genre": [
+        "Adventure",
+        "Fantasy",
+        "Isekai"
+      ],
+      "post": "Ferdynuril",
+      "author": "Torisuke",
+      "serialization": "Comic Corona",
+      "theme": [
+        "Adaptation",
+        "Cooking",
+        "Magic"
+      ],
+      "rating": "8.25",
+      "title": "Tensei Nanmin Shoujo wa Shimin-ken wo 0 Kara Mezashite Hatarakimasu",
+      "release_year": 2025,
+      "description": "Lill, yang bereinkarnasi di pemukiman pengungsi, hari ini kembali merasa lapar. Ditambah lagi, karena orang tuanya yang tidak bekerja, ia dikucilkan dan hampir diusir!?\nUntuk mempertahankan tempat tinggalnya, ia berusaha mendapatkan kepercayaan penduduk dengan membantu mereka setiap hari. Usaha keras gadis kecil itu perlahan mulai diakui oleh orang-orang di sekitarnya.\nSuatu hari, ia ingin makan makanan hangat sampai kenyang! Dengan semangat itu, ia mengetahui bahwa bahkan seorang pengungsi bisa tinggal di kota jika menjadi petualang peringkat B—!?\nTujuannya adalah keluar dari kehidupan sebagai pengungsi! Kisah fantasi petualangan santai tentang gadis yang bereinkarnasi dan berjuang dengan tekun!! ",
+      "artist": "Chirorirura"
+    },
+    {
+      "id": "watashikumona",
+      "author": "Akisake",
+      "migratedAt": "2025-12-29T12:28:01.194Z",
+      "rating": "8.07",
+      "artist": "Sanneko",
+      "theme": [
+        "Monsters",
+        "Adaptation"
+      ],
+      "alternative_title": "I've Tamed a Spider Monster, So I'm Going to Try My Best at Sewing with Spider Silk!",
+      "project": true,
+      "serialization": "Dra-Dra Flat b",
+      "release_year": 2025,
+      "title": "Watashi, Kumo na Monster wo Tame Shitanode, Spider Silk de Saiho wo Ganbarimasu!",
+      "post": "Ferdynuril",
+      "description": "Kisahnya mengikuti Lily, seorang gadis yang meninggal karena sakit dan kemudian mendapatkan berkah dari seorang dewi, memungkinkan dirinya untuk bereinkarnasi di dunia lain dengan tubuh yang sehat serta kemampuan \"Magic Sewing\". Dalam perjalanan barunya, Lily bertemu dengan Tarato, seekor monster laba-laba raksasa yang dapat menghasilkan benang langka. Setelah menjinakkannya, Lily mulai memanfaatkan benang tersebut untuk menciptakan pakaian berkualitas tinggi, yang akhirnya menarik perhatian banyak orang. ",
+      "status": "Ongoing",
+      "genre": [
+        "Fantasy",
+        "Isekai",
+        "Slice of Life"
+      ]
+    },
+    {
+      "id": "watashinokokoro",
+      "title": "Watashi no Kokoro wa Oji-san de Aru",
+      "migratedAt": "2025-12-29T12:28:01.194Z",
+      "release_year": 2024,
+      "project": false,
+      "serialization": "Comic Pash!",
+      "description": "Haruka, pria kesepian tanpa teman atau keluarga, tiba-tiba terbangun dalam tubuh seorang dark elf cantik dan penuh pesona. Dunia fantasi yang luar biasa terbuka di hadapannya, tapi satu hal menghalangi: ia tak tahu cara bersosialisasi. Meski canggung dan penuh keraguan, Haruka kini memiliki tubuh kuat dan mana tak terbatas—dan ia bertekad untuk menjalani hidup barunya sepenuhnya. Dalam perjalanan penuh kehangatan, ia mulai membentuk persahabatan dan menemukan arti hidup yang sesungguhnya. ",
+      "genre": [
+        "Action",
+        "Adventure",
+        "Fantasy",
+        "Isekai"
+      ],
+      "alternative_title": "This Alluring Dark Elf has the Heart of a Middle-Aged Man!",
+      "post": "Ferdynuril",
+      "rating": "8.74",
+      "author": "Shimano Yuuhi",
+      "theme": [
+        "Adaptation",
+        "Genderswap"
+      ],
+      "status": "Ongoing",
+      "artist": "Utsugi"
     }
   ]
 }

@@ -4,13 +4,26 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title><%= title || (manga ? `${manga} - Chapter ${chapter}` : 'Chapter') %></title>
+  <title>
+  Baca <%= title || manga %> Chapter <%= chapter %> Bahasa Indonesia – MantraID
+  </title>
+  <meta name="description"
+  content="Baca <%= title || manga %> chapter <%= chapter %> bahasa Indonesia dengan kualitas gambar terbaik. Update terbaru hanya di MantraID." />
+  <link rel="canonical"
+  href="https://mantraid.my.id/Manga/<%= manga %>/<%= chapter %>" />
+
+
+
 
   <!-- Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
 <body class="min-h-screen bg-gray-900 text-gray-100 flex flex-col">
+  <h1 class="sr-only">
+Baca <%= title || manga %> Chapter <%= chapter %> Bahasa Indonesia
+</h1>
+
 
   <!-- ================= HEADER ================= -->
   <header id="readerHeader"
@@ -78,17 +91,31 @@
             <!-- Image -->
             <img
               data-src="<%= img %>"
-              alt="Page <%= idx + 1 %>"
+              alt="Baca <%= title || manga %> Chapter <%= chapter %> Halaman <%= idx + 1 %> Bahasa Indonesia"
               class="page-image w-full h-auto block opacity-0 transition-opacity duration-300"
-            >
+            />
+
           </figure>
         <% }) %>
       </div>
     <% } %>
+    <section class="max-w-4xl mx-auto text-xs text-gray-500 mt-12 px-2">
+      <p>
+        Baca <strong><%= title || manga %> chapter <%= chapter %></strong> bahasa Indonesia.
+        Lanjutkan ke chapter berikutnya atau kembali ke daftar chapter
+        <a href="/Manga/<%= manga %>" class="text-blue-400 hover:underline">
+          di sini
+        </a>.
+      </p>
+    </section>
+  
   </main>
+  
+
 
   <!-- ================= FOOTER ================= -->
-  <footer class="bottom-4 z-30">
+   
+    <footer class="bottom-4 z-30">
     <div class="max-w-4xl mx-auto px-4 flex gap-2">
       <% if (prevUrl) { %>
         <a href="<%= prevUrl %>"
@@ -178,6 +205,25 @@
       });
     })();
   </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ComicStory",
+  "name": "<%= title || manga %> Chapter <%= chapter %>",
+  "isPartOf": {
+    "@type": "CreativeWorkSeries",
+    "name": "<%= title || manga %>"
+  },
+  "url": "https://mantraid.my.id/Manga/<%= manga %>/<%= chapter %>",
+  "inLanguage": "id",
+  "publisher": {
+    "@type": "Organization",
+    "name": "MantraID",
+    "url": "https://mantraid.my.id"
+  }
+}
+</script>
+
 
 </body>
 </html>
