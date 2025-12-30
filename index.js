@@ -27,6 +27,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 app.set('views', './views');
 
+const sitemapRoutes = require("./routes/sitemap");
+app.use("/", sitemapRoutes);
+
 // Middleware
 app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
@@ -46,9 +49,7 @@ const homeRoutes = require('./routes/home');
 const imageRoutes = require('./routes/image');
 const mangaRoutes = require('./routes/manga');
 const authRoutes = require('./routes/auth');
-const sitemapRoutes = require("./routes/sitemap");
 
-app.use("/", sitemapRoutes);
 
 app.use('/admin', authRoutes);
 app.use('/', homeRoutes);

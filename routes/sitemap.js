@@ -28,70 +28,55 @@ router.get("/sitemap.xml", async (req, res) => {
     const indexPath = path.join(DATA_DIR, "index.json");
     const mangaIndex = JSON.parse(fs.readFileSync(indexPath, "utf8"));
 
-    const today = new Date().toISOString().split("T")[0];
-    const urls = [];
+    let urls = [
+      { loc: `${BASE_URL}/`, priority: "1.0" },
+      { loc: `${BASE_URL}/manga`, priority: "0.9" },
+    ];
 
-    // ================= BASIC URLS =================
-    urls.push({
-      loc: `${BASE_URL}/`,
-      priority: "1.0",
-      lastmod: today
-    });
+    const mangaList = Object.values(mangaIndex.manga_list).filter(m => m.id);
 
-    urls.push({
-      loc: `${BASE_URL}/manga`,
-      priority: "0.9",
-      lastmod: today
-    });
+    // 🚀 PARALLEL fetch chapters
+    const chapterResults = await Promise.allSettled(
+      mangaList.map(m => getChaptersFromBucket(m.id))
+    );
 
-    // ================= MANGA + CHAPTER =================
-    for (const manga of Object.values(mangaIndex.manga_list)) {
-      if (!manga.id) continue;
-
-      // Manga page
+    mangaList.forEach((manga, i) => {
       urls.push({
-        loc: `${BASE_URL}/manga/${manga.id}`,
+        loc: `${BASE_URL}/Manga/${manga.id}`,
         priority: "0.8",
-        lastmod: today
       });
 
-      // Chapters from GCS
-      let chapters = [];
-      try {
-        chapters = await getChaptersFromBucket(manga.id);
-      } catch (e) {
-        console.error(`❌ GCS error (${manga.id})`, e.message);
-      }
-
-      for (const ch of chapters) {
-        urls.push({
-          loc: `${BASE_URL}/manga/${manga.id}/${ch}`,
-          priority: "0.6",
-          lastmod: today
+      if (chapterResults[i].status === "fulfilled") {
+        chapterResults[i].value.forEach(ch => {
+          urls.push({
+            loc: `${BASE_URL}/Manga/${manga.id}/${ch}`.trim(),
+            priority: "0.6",
+          });
         });
       }
-    }
+    });
 
-    // ================= XML BUILD (NO NEWLINE IN <loc>) =================
     const xml =
 `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls.map(u =>
-`<url>
-<loc>${u.loc}</loc>
-<lastmod>${u.lastmod}</lastmod>
-<priority>${u.priority}</priority>
-</url>`
-).join("")}
+${urls.map(u => `
+  <url>
+    <loc>${u.loc}</loc>
+    <priority>${u.priority}</priority>
+  </url>
+`).join("")}
 </urlset>`;
 
-    res.setHeader("Content-Type", "application/xml");
+    res.status(200);
+    res.setHeader("Content-Type", "application/xml; charset=utf-8");
+    res.setHeader("Cache-Control", "public, max-age=3600");
     res.send(xml);
 
   } catch (err) {
-    console.error("❌ Sitemap fatal error:", err);
+    console.error("Sitemap error:", err);
     res.status(500).send("Sitemap error");
   }
 });
+
 
 module.exports = router;
