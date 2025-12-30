@@ -7,6 +7,9 @@ const session = require("express-session");
 const syncFirestoreToLocal = require("./config/loadFirestore");
 const antiBot = require("./middle/antiBot");
 
+
+
+
 app.use(session({
   name: "mantraid.sid",
   secret: "mantraid-super-secret",
@@ -43,6 +46,9 @@ const homeRoutes = require('./routes/home');
 const imageRoutes = require('./routes/image');
 const mangaRoutes = require('./routes/manga');
 const authRoutes = require('./routes/auth');
+const sitemapRoutes = require("./routes/sitemap");
+
+app.use("/", sitemapRoutes);
 
 app.use('/admin', authRoutes);
 app.use('/', homeRoutes);
